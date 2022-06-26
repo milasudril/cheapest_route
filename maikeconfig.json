@@ -56,7 +56,10 @@
                         ],
                         "iquote": [
                             "."
-                        ]
+                        ],
+                        "std_revision": {
+                            "min":"c++20"
+                        }
                     },
                     "recipe": "cxx_compiler.py",
                     "use_get_tags": 0
