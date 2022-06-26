@@ -4,12 +4,11 @@
 
 int main()
 {
-	auto result = search(cheapest_route::from{cheapest_route::vec2i_t{0, 0}},
-		[](cheapest_route::from<cheapest_route::vec2f_t> a, cheapest_route::to<cheapest_route::vec2f_t> b) {
+	auto const size = 2048;
+	auto result = search(cheapest_route::from{cheapest_route::vec2i_t{-size, -size}}, cheapest_route::to{cheapest_route::vec2i_t{size, size}},
+		[size = static_cast<double>(size)](cheapest_route::from<cheapest_route::vec2f_t> a, cheapest_route::to<cheapest_route::vec2f_t> b) {
 		auto const v1 = a.value();
 		auto const v2 = b.value();
-
-		constexpr auto size = 16.0;
 
 		if((v2[0] < -size || v2[0] > size) || (v2[1] < -size || v2[1] > size))
 		{ return std::numeric_limits<double>::infinity(); }

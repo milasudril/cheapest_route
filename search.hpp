@@ -61,7 +61,7 @@ namespace cheapest_route
 		double total_cost = std::numeric_limits<double>::infinity();
 	};
 
-	constexpr auto scale_factor = 6;
+	constexpr auto scale_factor = 1;
 
 	template<auto tag>
 	constexpr auto scale_by_factor(tagged_value<vec2i_t, tag> val)
@@ -86,8 +86,8 @@ namespace cheapest_route
 
 	constexpr auto neigbour_offsets = gen_neigbour_offset_table();
 
-	template<class CostFunction, class ... Args>
-	auto search(from<vec2i_t> origin, CostFunction&& f, Args&& ... args)
+	template<class CostFunction>
+	auto search(from<vec2i_t> origin, to<vec2i_t> target, CostFunction&& f)
 	{
 		auto cmp = [](pending_route_node const& a, pending_route_node const& b)
 		{ return is_cheaper(b, a); };
@@ -108,6 +108,8 @@ namespace cheapest_route
 			nodes_to_visit.pop();
 			auto& cost_item = cost_table[current.loc];
 			cost_item.second = true;
+			if(current.loc.value()[0] == target.value()[0] && current.loc.value()[1] == target.value()[1])
+			{ return cost_table; }
 
 			for(auto item : neigbour_offsets)
 			{
@@ -127,9 +129,8 @@ namespace cheapest_route
 				{
 					new_cost_item.first.total_cost = new_cost;
 					new_cost_item.first.loc = from<vec2i_t>{current.loc.value()};
+					nodes_to_visit.push(pending_route_node{next_loc, new_cost});
 				}
-
-				nodes_to_visit.push(pending_route_node{next_loc, new_cost});
 			}
 		}
 
