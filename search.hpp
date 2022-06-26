@@ -18,6 +18,7 @@ namespace cheapest_route
 	struct tagged_value
 	{
 	public:
+		tagged_value() = default;
 		explicit tagged_value(T value):m_value{value}{}
 		T value() const { return m_value; }
 
@@ -60,18 +61,19 @@ namespace cheapest_route
 		double total_cost = std::numeric_limits<double>::infinity();
 	};
 
-	constexpr auto scale_factor = 16;
+	constexpr auto scale_factor = 6;
 
 	template<auto tag>
-	constexpr auto scale_by_factor(tagged_value<vec2i_t, tag> x)
+	constexpr auto scale_by_factor(tagged_value<vec2i_t, tag> val)
 	{
+		auto const x = val.value();
 		return tagged_value<vec2f_t, tag>
-			{static_cast<double>(scale_factor)*vec2f_t{static_cast<double>(x[0]), static_cast<double>(x[1])}};
+			{vec2f_t{static_cast<double>(x[0]), static_cast<double>(x[1])}/ static_cast<double>(scale_factor)};
 	}
 
 	constexpr auto gen_neigbour_offset_table()
 	{
-		std::array<vec2i_t, 24> ret{};
+		std::array<vec2i_t, 8> ret{};
 		constexpr auto r = static_cast<double>(scale_factor);
 		for(size_t k = 0; k != std::size(ret); ++k)
 		{
@@ -88,9 +90,9 @@ namespace cheapest_route
 	auto search(from<vec2i_t> origin, CostFunction&& f, Args&& ... args)
 	{
 		auto cmp = [](pending_route_node const& a, pending_route_node const& b)
-		{ return is_cheaper(a, b); };
+		{ return is_cheaper(b, a); };
 
-		std::priority_queue<pending_route_node, decltype(cmp)> nodes_to_visit;
+		std::priority_queue<pending_route_node, std::vector<pending_route_node>, decltype(cmp)> nodes_to_visit;
 		nodes_to_visit.push(pending_route_node{to<vec2i_t>{scale_factor*origin.value()}, 0.0});
 
 		auto loc_cmp=[](to<vec2i_t> p1, to<vec2i_t> p2) {
@@ -102,28 +104,33 @@ namespace cheapest_route
 		std::map<to<vec2i_t>, std::pair<route_node, bool>, decltype(loc_cmp)> cost_table;
 		while(!nodes_to_visit.empty())
 		{
-			auto current = nodes_to_visit.front();
+			auto current = nodes_to_visit.top();
 			nodes_to_visit.pop();
 			auto& cost_item = cost_table[current.loc];
 			cost_item.second = true;
 
-			std::ranges::for_each(neigbour_offsets, [&cost_table, current, &f, &nodes_to_visit](vec2i_t item) {
+			for(auto item : neigbour_offsets)
+			{
  				auto const next_loc = current.loc + item;
-				auto& new_cost_item = cost_table[next_loc];
-				if(!new_cost_item.second)
-				{
-					auto const new_cost = current.total_cost
-						+ f(scale_by_factor(from{current.loc.value()}), scale_by_factor(next_loc));
-					static_assert(std::is_same_v<decltype(new_cost), double>);
-					if(new_cost < new_cost_item.second.cost)
-					{
-						new_cost_item.first.cost = new_cost;
-						bew:cost_item.from = current.loc;
-					}
 
-					nodes_to_visit.push(pending_route_node{current.loc, new_cost});
+				auto const cost_increment = f(scale_by_factor(from{current.loc.value()}), scale_by_factor(next_loc));
+				static_assert(std::is_same_v<std::decay_t<decltype(cost_increment)>, double>);
+				if(cost_increment == std::numeric_limits<double>::infinity())
+				{ break; }
+
+				auto& new_cost_item = cost_table[next_loc];
+				if(new_cost_item.second)
+				{ break; }
+
+				auto const new_cost = current.total_cost + cost_increment;
+				if(new_cost < new_cost_item.first.total_cost)
+				{
+					new_cost_item.first.total_cost = new_cost;
+					new_cost_item.first.loc = from<vec2i_t>{current.loc.value()};
 				}
-			});
+
+				nodes_to_visit.push(pending_route_node{next_loc, new_cost});
+			}
 		}
 
 		return cost_table;
