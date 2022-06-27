@@ -108,6 +108,20 @@ namespace cheapest_route
 
 		return cost_table;
 	}
+
+	template<class T>
+	auto follow_path(T const& cost_table, to<int64_t> target)
+	{
+		auto i = cost_table.find(target);
+		while(i != std::end(cost_table))
+		{
+			printf("%ld %ld %.8g\n", i->first[0], i->first[1], i->second.first.total_cost);
+			if(i->second.first.total_cost == std::numeric_limits<double>::infinity())
+			{ return 0;}
+			i = cost_table.find(i->second.first.loc);
+		}
+		return 0;
+	}
 }
 
 #endif

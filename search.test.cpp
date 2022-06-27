@@ -4,7 +4,7 @@
 
 int main()
 {
-	int64_t const size = 16;
+	int64_t const size = 4;
 	auto result = search(cheapest_route::from<int64_t>{-size, -size},
 						 cheapest_route::to<int64_t>{size, size},
 		[size = static_cast<double>(size)](cheapest_route::from<double> a, cheapest_route::to<double> b) {
@@ -19,6 +19,8 @@ int main()
 		return d2[0] + d2[1];
 	});
 
+	follow_path(result, cheapest_route::to<int64_t>{size, size});
+# if 0
 	std::ranges::for_each(result, [](auto const& item) {
 		auto [to, node_info] = item;
 		printf("to = (%ld, %ld), from = (%ld, %ld). total_cost = %.8g\n",
@@ -26,4 +28,5 @@ int main()
 			   node_info.first.loc.value()[0], node_info.first.loc.value()[1],
 			   node_info.first.total_cost);
 	});
+#endif
 }
