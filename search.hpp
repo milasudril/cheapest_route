@@ -56,13 +56,13 @@ namespace cheapest_route
 	constexpr auto neigbour_offsets = gen_neigbour_offset_table();
 
 	template<class CostFunction>
-	auto search(from<int64_t> origin, to<int64_t> target, CostFunction&& f)
+	auto search(from<int64_t> source, to<int64_t> target, CostFunction&& f)
 	{
 		auto cmp = [](pending_route_node const& a, pending_route_node const& b)
 		{ return is_cheaper(b, a); };
 
 		std::priority_queue<pending_route_node, std::vector<pending_route_node>, decltype(cmp)> nodes_to_visit;
-		nodes_to_visit.push(pending_route_node{to<int64_t>{scale_factor*origin.value()}, 0.0});
+		nodes_to_visit.push(pending_route_node{to<int64_t>{scale_factor*source.value()}, 0.0});
 
 		auto loc_cmp=[](to<int64_t> p1, to<int64_t> p2) {
 			auto const a = p1.value();
