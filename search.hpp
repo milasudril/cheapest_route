@@ -47,8 +47,8 @@ namespace cheapest_route
 		for(size_t k = 0; k != std::size(ret); ++k)
 		{
 			auto const theta = k*2.0*std::numbers::pi/std::size(ret);
-			ret[k] = to<int64_t>{static_cast<int64_t>(std::round(r*std::cos(theta))),
-				static_cast<int64_t>(std::round(r*std::sin(theta)))};
+			auto const v = to<double>{std::round(r*std::cos(theta)), std::round(r*std::sin(theta))};
+			ret[k] = to<int64_t>{v};
 		}
 		return ret;
 	}

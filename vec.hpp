@@ -14,6 +14,14 @@ namespace cheapest_route
 	using vec2i_t = vec_t<int64_t, 2>;
 	using vec2f_t = vec_t<double, 2>;
 
+    template<class U, class T>
+    constexpr auto vector_cast(vec_t<T, 2> x)
+    {return vec_t<U, 2>{static_cast<U>(x[0]),static_cast<U>(x[1])}; }
+
+    template<class U, class T, int = 0>
+    constexpr auto vector_cast(vec_t<T, 4> x)
+    {return vec_t<U, 4>{static_cast<U>(x[0]),static_cast<U>(x[1]), static_cast<U>(x[2]), static_cast<U>(x[3])}; }
+
 	template<class T, size_t N, auto tag>
 	class vec
 	{
@@ -48,16 +56,12 @@ namespace cheapest_route
 
 		template<class U, auto other>
 		constexpr operator vec<U, N, other>() const
-		{
-			vec_t<U, N> ret;
-			for(size_t k = 0; k != N; ++k)
-			{
-				ret[k] = static_cast<U>(m_value[k]);
-			}
-			return vec<U, N, other>{ret};
-		}
+        { return vec<U, N, other>(vector_cast<U, T>(m_value)); }
 
         constexpr T operator[](size_t k) const { return m_value[k]; }
+
+        constexpr T& operator[](size_t k)  { return m_value[k]; }
+
 
 	private:
 		vec_t<T, N> m_value;
