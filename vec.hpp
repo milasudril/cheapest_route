@@ -69,60 +69,62 @@ namespace cheapest_route
 
 	template<class T, size_t N, auto tag>
 	requires std::is_floating_point_v<T>
-	auto operator/(vec<T, N, tag> val, T scalar)
+	constexpr auto operator/(vec<T, N, tag> val, T scalar)
 	{
 		return vec<T, N, tag>{val.value()/scalar};
 	}
 
 	template<class T, size_t N, auto tag>
-	auto operator*(T scalar, vec<T, N, tag> val)
+	constexpr auto operator*(T scalar, vec<T, N, tag> val)
 	{
 		val*=scalar;
 		return val;
 	}
 
 	template<class T, size_t N, auto tag>
-	auto operator*(vec<T, N, tag> val, T scalar)
+	constexpr auto operator*(vec<T, N, tag> val, T scalar)
 	{
 		val*=scalar;
 		return val;
 	}
 
 	template<class T, size_t N, auto tag>
-	auto operator+(vec<T, N, tag> a, vec<T, N, tag> b)
+	constexpr auto operator+(vec<T, N, tag> a, vec<T, N, tag> b)
 	{
 		a+=b;
 		return a;
 	}
 
 	template<class T, size_t N, auto tag>
-	auto operator-(vec<T, N, tag> a, vec<T, N, tag> b)
+	constexpr auto operator-(vec<T, N, tag> a, vec<T, N, tag> b)
 	{
 		a-=b;
 		return a;
 	}
 
 	template<class T, size_t N, auto tag>
-	auto dot(vec<T, N, tag> a, vec<T, N, tag> b)
+	constexpr auto dot(vec<T, N, tag> a, vec<T, N, tag> b)
 	{
 		T sum{};
-		a*=b;
+		auto const tmp = a.value() * b.value();
 		for(size_t k = 0; k!= N; ++k)
 		{
-			sum += a[k];
+			sum += tmp[k];
 		}
 		return sum;
 	}
 
+	static_assert(dot(vec<int, 2, 0>{1, 0}, vec<int, 2, 0>{0, 1}) == 0);
+
 	template<class T, size_t N, auto tag>
-	auto length_squared(vec<T, N, tag> a)
+	constexpr auto length_squared(vec<T, N, tag> a)
 	{
 		return dot(a ,a);
 	}
 
 	template<class U, class T, size_t N, auto tag>
 	requires(std::is_integral_v<T>)
-	auto scale_to_float(U factor, vec<T, N, tag> a)
+	constexpr auto scale_to_float(U factor, vec<T, N, tag> a)
 	{
 		return static_cast<vec<U, N, tag>>(a)/factor;
 	}

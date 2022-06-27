@@ -78,7 +78,7 @@ namespace cheapest_route
 			auto& cost_item = cost_table[current.loc];
 			cost_item.second = true;
 
-			if(current.loc.value()[0] == target.value()[0] && current.loc.value()[1] == target.value()[1])
+			if(length_squared(scale_to_float(scale_factor, current.loc) - to<double>{target}) < 1.0)
 			{ return cost_table; }
 
 			for(auto item : neigbour_offsets)
