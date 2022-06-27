@@ -13,39 +13,17 @@
 
 namespace cheapest_route
 {
-	template<class T, auto tag>
-	struct tagged_value
-	{
-	public:
-		tagged_value() = default;
-		explicit tagged_value(T value):m_value{value}{}
-		T value() const { return m_value; }
-
-	private:
-		T m_value;
-	};
+	enum class node_type : int{source, target};
 
 	template<class T>
-	using from = tagged_value<T, 0>;
+	using from = vec<T, 2, node_type::source>;
 
 	template<class T>
-	using to = tagged_value<T, 1>;
-
-	template<class T, auto tag>
-	inline tagged_value<T, tag> operator+(tagged_value<T, tag> a, T b)
-	{
-		return tagged_value<T, tag>{a.value() + b};
-	}
-
-	template< auto tag>
-	inline tagged_value<int64_t, tag> operator*(int64_t b, tagged_value<vec2i_t, tag> a)
-	{
-		return tagged_value<int64_t, tag>{b*a.value()};
-	}
+	using to = vec<T, 2, node_type::target>;
 
 	struct pending_route_node
 	{
-		to<vec2i_t> loc;
+		to<int64_t> loc;
 		double total_cost;
 	};
 
@@ -56,28 +34,20 @@ namespace cheapest_route
 
 	struct route_node
 	{
-		from<vec2i_t> loc;
+		from<int64_t> loc;
 		double total_cost = std::numeric_limits<double>::infinity();
 	};
 
 	constexpr auto scale_factor = 1;
 
-	template<auto tag>
-	constexpr auto scale_by_factor(tagged_value<vec2i_t, tag> val)
-	{
-		auto const x = val.value();
-		return tagged_value<vec2f_t, tag>
-			{vec2f_t{static_cast<double>(x[0]), static_cast<double>(x[1])}/ static_cast<double>(scale_factor)};
-	}
-
 	constexpr auto gen_neigbour_offset_table()
 	{
-		std::array<vec2i_t, 8> ret{};
+		std::array<to<int64_t>, 8> ret{};
 		constexpr auto r = static_cast<double>(scale_factor);
 		for(size_t k = 0; k != std::size(ret); ++k)
 		{
 			auto const theta = k*2.0*std::numbers::pi/std::size(ret);
-			ret[k] = vec2i_t{static_cast<int64_t>(std::round(r*std::cos(theta))),
+			ret[k] = to<int64_t>{static_cast<int64_t>(std::round(r*std::cos(theta))),
 				static_cast<int64_t>(std::round(r*std::sin(theta)))};
 		}
 		return ret;
@@ -86,21 +56,21 @@ namespace cheapest_route
 	constexpr auto neigbour_offsets = gen_neigbour_offset_table();
 
 	template<class CostFunction>
-	auto search(from<vec2i_t> origin, to<vec2i_t> target, CostFunction&& f)
+	auto search(from<int64_t> origin, to<int64_t> target, CostFunction&& f)
 	{
 		auto cmp = [](pending_route_node const& a, pending_route_node const& b)
 		{ return is_cheaper(b, a); };
 
 		std::priority_queue<pending_route_node, std::vector<pending_route_node>, decltype(cmp)> nodes_to_visit;
-		nodes_to_visit.push(pending_route_node{to<vec2i_t>{scale_factor*origin.value()}, 0.0});
+		nodes_to_visit.push(pending_route_node{to<int64_t>{scale_factor*origin.value()}, 0.0});
 
-		auto loc_cmp=[](to<vec2i_t> p1, to<vec2i_t> p2) {
+		auto loc_cmp=[](to<int64_t> p1, to<int64_t> p2) {
 			auto const a = p1.value();
 			auto const b = p2.value();
 			return (a[0] == b[0]) ? a[1] < b[1] : a[0] < b[0];
 		};
 
-		std::map<to<vec2i_t>, std::pair<route_node, bool>, decltype(loc_cmp)> cost_table;
+		std::map<to<int64_t>, std::pair<route_node, bool>, decltype(loc_cmp)> cost_table;
 		while(!nodes_to_visit.empty())
 		{
 			auto current = nodes_to_visit.top();
@@ -114,7 +84,9 @@ namespace cheapest_route
 			{
  				auto const next_loc = current.loc + item;
 
-				auto const cost_increment = f(scale_by_factor(from{current.loc.value()}), scale_by_factor(next_loc));
+				auto const cost_increment =
+					f(scale_to_float(static_cast<double>(scale_factor), from<int64_t>{current.loc.value()}),
+					  scale_to_float(static_cast<double>(scale_factor),next_loc));
 				static_assert(std::is_same_v<std::decay_t<decltype(cost_increment)>, double>);
 				if(cost_increment == std::numeric_limits<double>::infinity())
 				{ break; }
@@ -127,7 +99,7 @@ namespace cheapest_route
 				if(new_cost < new_cost_item.first.total_cost)
 				{
 					new_cost_item.first.total_cost = new_cost;
-					new_cost_item.first.loc = from<vec2i_t>{current.loc.value()};
+					new_cost_item.first.loc = from<int64_t>{current.loc.value()};
 					nodes_to_visit.push(pending_route_node{next_loc, new_cost});
 				}
 			}

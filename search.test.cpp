@@ -4,9 +4,10 @@
 
 int main()
 {
-	auto const size = 16;
-	auto result = search(cheapest_route::from{cheapest_route::vec2i_t{-size, -size}}, cheapest_route::to{cheapest_route::vec2i_t{size, size}},
-		[size = static_cast<double>(size)](cheapest_route::from<cheapest_route::vec2f_t> a, cheapest_route::to<cheapest_route::vec2f_t> b) {
+	int64_t const size = 16;
+	auto result = search(cheapest_route::from<int64_t>{-size, -size},
+						 cheapest_route::to<int64_t>{size, size},
+		[size = static_cast<double>(size)](cheapest_route::from<double> a, cheapest_route::to<double> b) {
 		auto const v1 = a.value();
 		auto const v2 = b.value();
 

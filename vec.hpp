@@ -116,6 +116,13 @@ namespace cheapest_route
 		return dot(a ,a);
 	}
 
+	template<class U, class T, size_t N, auto tag>
+	requires(std::is_integral_v<T>)
+	auto scale_to_float(U factor, vec<T, N, tag> a)
+	{
+		return static_cast<vec<U, N, tag>>(a)/factor;
+	}
+
 
 }
 
