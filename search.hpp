@@ -38,12 +38,12 @@ namespace cheapest_route
 		double total_cost = std::numeric_limits<double>::infinity();
 	};
 
-	constexpr auto scale_factor = 1;
+	constexpr auto scale_factor = 1.0;
 
 	constexpr auto gen_neigbour_offset_table()
 	{
 		std::array<to<int64_t>, 8> ret{};
-		constexpr auto r = static_cast<double>(scale_factor);
+		constexpr auto r = scale_factor;
 		for(size_t k = 0; k != std::size(ret); ++k)
 		{
 			auto const theta = k*2.0*std::numbers::pi/std::size(ret);
@@ -62,7 +62,7 @@ namespace cheapest_route
 		{ return is_cheaper(b, a); };
 
 		std::priority_queue<pending_route_node, std::vector<pending_route_node>, decltype(cmp)> nodes_to_visit;
-		nodes_to_visit.push(pending_route_node{to<int64_t>{scale_factor*source.value()}, 0.0});
+		nodes_to_visit.push(pending_route_node{to<int64_t>{static_cast<int64_t>(scale_factor)*source}, 0.0});
 
 		auto loc_cmp=[](to<int64_t> p1, to<int64_t> p2) {
 			auto const a = p1.value();
@@ -77,6 +77,7 @@ namespace cheapest_route
 			nodes_to_visit.pop();
 			auto& cost_item = cost_table[current.loc];
 			cost_item.second = true;
+
 			if(current.loc.value()[0] == target.value()[0] && current.loc.value()[1] == target.value()[1])
 			{ return cost_table; }
 
@@ -85,8 +86,8 @@ namespace cheapest_route
  				auto const next_loc = current.loc + item;
 
 				auto const cost_increment =
-					f(scale_to_float(static_cast<double>(scale_factor), from<int64_t>{current.loc.value()}),
-					  scale_to_float(static_cast<double>(scale_factor),next_loc));
+					f(scale_to_float(scale_factor, from<int64_t>{current.loc.value()}),
+					  scale_to_float(scale_factor, next_loc));
 				static_assert(std::is_same_v<std::decay_t<decltype(cost_increment)>, double>);
 				if(cost_increment == std::numeric_limits<double>::infinity())
 				{ break; }
