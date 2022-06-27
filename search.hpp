@@ -1,6 +1,8 @@
 #ifndef CHEAPESTROUTE_SEARCH_HPP
 #define CHEAPESTROUTE_SEARCH_HPP
 
+#include "./vec.hpp"
+
 #include <vector>
 #include <queue>
 #include <map>
@@ -11,9 +13,6 @@
 
 namespace cheapest_route
 {
-	using vec2i_t [[gnu::vector_size(16)]] = int64_t;
-	using vec2f_t [[gnu::vector_size(16)]] = double;
-
 	template<class T, auto tag>
 	struct tagged_value
 	{

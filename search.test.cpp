@@ -4,7 +4,7 @@
 
 int main()
 {
-	auto const size = 2048;
+	auto const size = 16;
 	auto result = search(cheapest_route::from{cheapest_route::vec2i_t{-size, -size}}, cheapest_route::to{cheapest_route::vec2i_t{size, size}},
 		[size = static_cast<double>(size)](cheapest_route::from<cheapest_route::vec2f_t> a, cheapest_route::to<cheapest_route::vec2f_t> b) {
 		auto const v1 = a.value();
