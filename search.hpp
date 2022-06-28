@@ -10,6 +10,7 @@
 #include <numbers>
 #include <array>
 #include <algorithm>
+#include <ranges>
 
 namespace cheapest_route
 {
@@ -38,15 +39,13 @@ namespace cheapest_route
 		double total_cost = std::numeric_limits<double>::infinity();
 	};
 
-	constexpr auto scale_factor = 1.0;
-
 	constexpr auto gen_neigbour_offset_table()
 	{
 		std::array<to<int64_t>, 8> ret{};
-		constexpr auto r = scale_factor;
+		constexpr auto r = 1.0;
 		for(size_t k = 0; k != std::size(ret); ++k)
 		{
-			auto const theta = k*2.0*std::numbers::pi/std::size(ret);
+			auto const theta = -k*2.0*std::numbers::pi/std::size(ret);
 			auto const v = to<double>{std::round(r*std::cos(theta)), std::round(r*std::sin(theta))};
 			ret[k] = to<int64_t>{v};
 		}
@@ -62,7 +61,7 @@ namespace cheapest_route
 		{ return is_cheaper(b, a); };
 
 		std::priority_queue<pending_route_node, std::vector<pending_route_node>, decltype(cmp)> nodes_to_visit;
-		nodes_to_visit.push(pending_route_node{to<int64_t>{static_cast<int64_t>(scale_factor)*source}, 0.0});
+		nodes_to_visit.push(pending_route_node{to<int64_t>{source}, 0.0});
 
 		auto loc_cmp=[](to<int64_t> p1, to<int64_t> p2) {
 			auto const a = p1.value();
@@ -78,16 +77,16 @@ namespace cheapest_route
 			auto& cost_item = cost_table[current.loc];
 			cost_item.second = true;
 
-			if(length_squared(scale_to_float(scale_factor, current.loc) - to<double>{target}) < 1.0)
-			{ return cost_table; }
+			if(length_squared(current.loc - to<int64_t>{target}) < 1.0)
+			{
+				return cost_table;
+			}
 
 			for(auto item : neigbour_offsets)
 			{
  				auto const next_loc = current.loc + item;
 
-				auto const cost_increment =
-					f(scale_to_float(scale_factor, from<int64_t>{current.loc.value()}),
-					  scale_to_float(scale_factor, next_loc));
+				auto const cost_increment = f(from<int64_t>{current.loc}, next_loc);
 				static_assert(std::is_same_v<std::decay_t<decltype(cost_increment)>, double>);
 				if(cost_increment == std::numeric_limits<double>::infinity())
 				{ break; }
