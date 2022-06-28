@@ -8,15 +8,12 @@ int main()
 	auto result = search(cheapest_route::from<int64_t>{-size, -size},
 						 cheapest_route::to<int64_t>{size, size},
 		[size = static_cast<double>(size)](cheapest_route::from<double> a, cheapest_route::to<double> b) {
-		auto const v1 = a.value();
-		auto const v2 = b.value();
 
-		if((v2[0] < -size || v2[0] > size) || (v2[1] < -size || v2[1] > size))
+		if(std::max(std::abs(a[0]), std::abs(a[1])) > size
+			|| std::max(std::abs(b[0]), std::abs(b[1])) > size)
 		{ return std::numeric_limits<double>::infinity(); }
 
-		auto delta = v1 - v2;
-		auto d2 = delta*delta;
-		return d2[0] + d2[1];
+		return std::sqrt(length_squared(a - cheapest_route::from<double>{b}));
 	});
 
 	follow_path(result, cheapest_route::to<int64_t>{size, size});
