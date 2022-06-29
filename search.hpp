@@ -11,6 +11,7 @@
 #include <array>
 #include <algorithm>
 #include <ranges>
+#include <random>
 
 namespace cheapest_route
 {
@@ -25,7 +26,7 @@ namespace cheapest_route
 	struct rank
 	{
 		double total_cost;
-		uint64_t tiebreaker;
+		int64_t tiebreaker;
 
 		auto operator<=>(rank const&) const = default;
 	};
@@ -67,11 +68,14 @@ namespace cheapest_route
 	template<class CostFunction>
 	auto search(from<int64_t> source, to<int64_t> target, CostFunction&& f)
 	{
+		std::mt19937 rng;
+		std::uniform_int_distribution<int64_t> U{-16, 16};
+
 		auto cmp = [](pending_route_node const& a, pending_route_node const& b)
 		{ return is_cheaper(b, a); };
 
 		std::priority_queue<pending_route_node, std::vector<pending_route_node>, decltype(cmp)> nodes_to_visit;
-		nodes_to_visit.push(pending_route_node{to<int64_t>{source}, rank{0.0, 0}});
+		nodes_to_visit.push(pending_route_node{to<int64_t>{source}, rank{0.0, U(rng)}});
 
 		auto loc_cmp=[](to<int64_t> p1, to<int64_t> p2) {
 			auto const a = p1.value();
@@ -105,7 +109,7 @@ namespace cheapest_route
 				if(new_cost_item.second)
 				{ break; }
 
-				rank const new_rank{current.r.total_cost + cost_increment, 0};
+				rank const new_rank{current.r.total_cost + cost_increment, current.r.tiebreaker + U(rng)};
 				if(new_rank < new_cost_item.first.r)
 				{
 					new_cost_item.first.r = new_rank;
