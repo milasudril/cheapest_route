@@ -22,21 +22,31 @@ namespace cheapest_route
 	template<class T>
 	using to = vec<T, 2, node_type::target>;
 
+	struct rank
+	{
+		double total_cost;
+		uint64_t tiebreaker;
+
+		auto operator<=>(rank const&) const = default;
+	};
+
 	struct pending_route_node
 	{
 		to<int64_t> loc;
-		double total_cost;
+		rank r;
 	};
 
 	bool is_cheaper(pending_route_node const& a, pending_route_node const& b)
 	{
-		return a.total_cost < b.total_cost;
+		return a.r < b.r;
 	}
 
 	struct route_node
 	{
 		from<int64_t> loc;
-		double total_cost = std::numeric_limits<double>::infinity();
+		rank r;
+
+		route_node():loc{}, r{std::numeric_limits<double>::infinity(), 0}{}
 	};
 
 	constexpr auto gen_neigbour_offset_table()
@@ -61,7 +71,7 @@ namespace cheapest_route
 		{ return is_cheaper(b, a); };
 
 		std::priority_queue<pending_route_node, std::vector<pending_route_node>, decltype(cmp)> nodes_to_visit;
-		nodes_to_visit.push(pending_route_node{to<int64_t>{source}, 0.0});
+		nodes_to_visit.push(pending_route_node{to<int64_t>{source}, rank{0.0, 0}});
 
 		auto loc_cmp=[](to<int64_t> p1, to<int64_t> p2) {
 			auto const a = p1.value();
@@ -95,12 +105,12 @@ namespace cheapest_route
 				if(new_cost_item.second)
 				{ break; }
 
-				auto const new_cost = current.total_cost + cost_increment;
-				if(new_cost < new_cost_item.first.total_cost)
+				rank const new_rank{current.r.total_cost + cost_increment, 0};
+				if(new_rank < new_cost_item.first.r)
 				{
-					new_cost_item.first.total_cost = new_cost;
+					new_cost_item.first.r = new_rank;
 					new_cost_item.first.loc = from<int64_t>{current.loc.value()};
-					nodes_to_visit.push(pending_route_node{next_loc, new_cost});
+					nodes_to_visit.push(pending_route_node{next_loc, new_rank});
 				}
 			}
 		}
@@ -114,8 +124,8 @@ namespace cheapest_route
 		auto i = cost_table.find(target);
 		while(i != std::end(cost_table))
 		{
-			printf("%ld %ld %.8g\n", i->first[0], i->first[1], i->second.first.total_cost);
-			if(i->second.first.total_cost == std::numeric_limits<double>::infinity())
+			printf("%ld %ld %.8g\n", i->first[0], i->first[1], i->second.first.r.total_cost);
+			if(i->second.first.r.total_cost == std::numeric_limits<double>::infinity())
 			{ return 0;}
 			i = cost_table.find(i->second.first.loc);
 		}
