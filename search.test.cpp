@@ -4,9 +4,9 @@
 
 int main()
 {
-	int64_t const size = 1024;
-	auto result = search(cheapest_route::from<int64_t>{-size, -size/2},
-						 cheapest_route::to<int64_t>{size, size/2},
+	int64_t const size = 64;
+	auto result = search(cheapest_route::from<int64_t>{-size, -3*size/4},
+						 cheapest_route::to<int64_t>{size, 3*size/4},
 		[size = static_cast<double>(size)](cheapest_route::from<double> a, cheapest_route::to<double> b) {
 
 		if(std::max(std::abs(a[0]), std::abs(a[1])) > size
@@ -20,7 +20,7 @@ int main()
 		return ret;
 	});
 
-	follow_path(result, cheapest_route::to<int64_t>{size, size/2});
+	follow_path(result, cheapest_route::to<int64_t>{size, 3*size/4});
 # if 0
 	std::ranges::for_each(result, [](auto const& item) {
 		auto [to, node_info] = item;

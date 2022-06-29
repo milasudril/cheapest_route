@@ -50,13 +50,16 @@ namespace cheapest_route
 		route_node():loc{}, r{std::numeric_limits<double>::infinity(), 0}{}
 	};
 
+	constexpr auto scale = 2.0;
+	constexpr auto scale_int = static_cast<int64_t>(scale);
+
 	constexpr auto gen_neigbour_offset_table()
 	{
-		std::array<to<int64_t>, 8> ret{};
-		constexpr auto r = 1.0;
+		std::array<to<int64_t>, 16> ret{};
+		constexpr auto r = scale;
 		for(size_t k = 0; k != std::size(ret); ++k)
 		{
-			auto const theta = -k*2.0*std::numbers::pi/std::size(ret);
+			auto const theta = k*2.0*std::numbers::pi/std::size(ret);
 			auto const v = to<double>{std::round(r*std::cos(theta)), std::round(r*std::sin(theta))};
 			ret[k] = to<int64_t>{v};
 		}
@@ -69,13 +72,13 @@ namespace cheapest_route
 	auto search(from<int64_t> source, to<int64_t> target, CostFunction&& f)
 	{
 		std::mt19937 rng;
-		std::uniform_int_distribution<int64_t> U{-16, 16};
+		std::uniform_int_distribution<int64_t> U{-16*scale_int, 16*scale_int};
 
 		auto cmp = [](pending_route_node const& a, pending_route_node const& b)
 		{ return is_cheaper(b, a); };
 
 		std::priority_queue<pending_route_node, std::vector<pending_route_node>, decltype(cmp)> nodes_to_visit;
-		nodes_to_visit.push(pending_route_node{to<int64_t>{source}, rank{0.0, U(rng)}});
+		nodes_to_visit.push(pending_route_node{scale_int*to<int64_t>{source}, rank{0.0, U(rng)}});
 
 		auto loc_cmp=[](to<int64_t> p1, to<int64_t> p2) {
 			auto const a = p1.value();
@@ -91,7 +94,7 @@ namespace cheapest_route
 			auto& cost_item = cost_table[current.loc];
 			cost_item.second = true;
 
-			if(length_squared(current.loc - to<int64_t>{target}) < 1.0)
+			if(length_squared(scale_to_float(scale, current.loc) - to<double>{target}) < 1.0)
 			{
 				return cost_table;
 			}
@@ -100,7 +103,8 @@ namespace cheapest_route
 			{
  				auto const next_loc = current.loc + item;
 
-				auto const cost_increment = f(from<int64_t>{current.loc}, next_loc);
+				auto const cost_increment = f(scale_to_float(scale, from<int64_t>{current.loc}),
+											  scale_to_float(scale, next_loc));
 				static_assert(std::is_same_v<std::decay_t<decltype(cost_increment)>, double>);
 				if(cost_increment == std::numeric_limits<double>::infinity())
 				{ break; }
@@ -125,10 +129,11 @@ namespace cheapest_route
 	template<class T>
 	auto follow_path(T const& cost_table, to<int64_t> target)
 	{
-		auto i = cost_table.find(target);
+		auto i = cost_table.find(scale_int*target);
 		while(i != std::end(cost_table))
 		{
-			printf("%ld %ld %.8g\n", i->first[0], i->first[1], i->second.first.r.total_cost);
+			auto const loc = scale_to_float(scale, i->first);
+			printf("%.8g %.8g %.8g\n", loc[0], loc[1], i->second.first.r.total_cost);
 			if(i->second.first.r.total_cost == std::numeric_limits<double>::infinity())
 			{ return 0;}
 			i = cost_table.find(i->second.first.loc);

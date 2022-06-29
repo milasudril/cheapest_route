@@ -27,6 +27,7 @@
                             "-Wall",
                             "-Wextra",
                             "-O3",
+                            "-fno-inline",
                             "-ftree-vectorize",
                             "-ffast-math"
                         ],
@@ -59,6 +60,7 @@
                             "-Wall",
                             "-Wextra",
                             "-O3",
+                            "-fno-inline",
                             "-ftree-vectorize",
                             "-ffast-math"
                         ],
