@@ -95,7 +95,14 @@ namespace cheapest_route
 			cost_item.second = true;
 
 			if(length_squared(scale_to_float(scale, current.loc) - to<double>{target}) < 1.0)
-			{
+			{/*
+				auto const scaled = scale_to_float(scale, current.loc);
+				printf("Exit: current=%ld %ld, current_scaled=%.8g %.8g, target=%ld %ld, distnace=%.8g\n",
+					   current.loc[0], current.loc[1],
+					   scaled[0], scaled[1],
+					   target[0], target[1],
+				       length_squared(scaled - to<double>{target}));
+			*/
 				return cost_table;
 			}
 
@@ -129,6 +136,7 @@ namespace cheapest_route
 	template<class T>
 	auto follow_path(T const& cost_table, to<int64_t> target)
 	{
+	//	printf("End location %ld %ld\n", target[0], target[1]);
 		auto i = cost_table.find(scale_int*target);
 		while(i != std::end(cost_table))
 		{
