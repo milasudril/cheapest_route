@@ -5,13 +5,13 @@
 
 #include <vector>
 #include <queue>
-#include <map>
 #include <cmath>
 #include <numbers>
 #include <array>
 #include <algorithm>
 #include <ranges>
 #include <random>
+#include <memory>
 
 namespace cheapest_route
 {
@@ -68,6 +68,15 @@ namespace cheapest_route
 
 	constexpr auto neigbour_offsets = gen_neigbour_offset_table();
 
+	template<class T, auto tag>
+	T& get_item(T* ptr, vec<int64_t, 2, tag> loc, size_t width)
+	{
+		auto const x = loc[0];
+		auto const y = loc[1];
+		return *(ptr + y*width + x);
+	}
+
+
 	template<class CostFunction>
 	auto search(from<int64_t> source, to<int64_t> target, CostFunction&& f)
 	{
@@ -80,18 +89,16 @@ namespace cheapest_route
 		std::priority_queue<pending_route_node, std::vector<pending_route_node>, decltype(cmp)> nodes_to_visit;
 		nodes_to_visit.push(pending_route_node{scale_int*to<int64_t>{source}, rank{0.0, U(rng)}});
 
-		auto loc_cmp=[](to<int64_t> p1, to<int64_t> p2) {
-			auto const a = p1.value();
-			auto const b = p2.value();
-			return (a[0] == b[0]) ? a[1] < b[1] : a[0] < b[0];
-		};
+		constexpr auto w = scale_int*1024;
+		constexpr auto h = scale_int*1024;
 
-		std::map<to<int64_t>, std::pair<route_node, bool>, decltype(loc_cmp)> cost_table;
+		auto cost_table = std::make_unique<std::pair<route_node, bool>[]>(w*h);
+
 		while(!nodes_to_visit.empty())
 		{
 			auto current = nodes_to_visit.top();
 			nodes_to_visit.pop();
-			auto& cost_item = cost_table[current.loc];
+			auto& cost_item = get_item(cost_table.get(), current.loc, w);
 			cost_item.second = true;
 
 			if(length_squared(scale_to_float(scale, current.loc) - to<double>{target}) < 1.0)
@@ -116,7 +123,7 @@ namespace cheapest_route
 				if(cost_increment == std::numeric_limits<double>::infinity())
 				{ break; }
 
-				auto& new_cost_item = cost_table[next_loc];
+				auto& new_cost_item = get_item(cost_table.get(), next_loc, w);
 				if(new_cost_item.second)
 				{ break; }
 
@@ -136,15 +143,15 @@ namespace cheapest_route
 	template<class T>
 	auto follow_path(T const& cost_table, to<int64_t> target)
 	{
-	//	printf("End location %ld %ld\n", target[0], target[1]);
-		auto i = cost_table.find(scale_int*target);
-		while(i != std::end(cost_table))
+		auto loc_search = scale_int*target;
+		while(true)
 		{
-			auto const loc = scale_to_float(scale, i->first);
-			printf("%.8g %.8g %.8g\n", loc[0], loc[1], i->second.first.r.total_cost);
-			if(i->second.first.r.total_cost == std::numeric_limits<double>::infinity())
+			auto const loc = scale_to_float(scale, loc_search);
+			auto const& item = get_item(cost_table.get(), loc_search, 2*1024);
+			printf("%.8g %.8g %.8g\n", loc[0], loc[1], item.first.r.total_cost);
+			if(item.first.r.total_cost == std::numeric_limits<double>::infinity())
 			{ return 0;}
-			i = cost_table.find(i->second.first.loc);
+			loc_search = item.first.loc;
 		}
 		return 0;
 	}
