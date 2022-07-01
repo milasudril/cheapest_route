@@ -4,6 +4,7 @@
 #include <type_traits>
 #include <cstdint>
 #include <cstddef>
+#include <string>
 
 namespace cheapest_route
 {
@@ -55,7 +56,7 @@ namespace cheapest_route
 		}
 
 		template<class U, auto other>
-		constexpr operator vec<U, N, other>() const
+		explicit constexpr operator vec<U, N, other>() const
         { return vec<U, N, other>(vector_cast<U, T>(m_value)); }
 
         constexpr T operator[](size_t k) const { return m_value[k]; }
@@ -129,7 +130,16 @@ namespace cheapest_route
 		return static_cast<vec<U, N, tag>>(a)/factor;
 	}
 
-
+	template<class T, size_t N, auto tag>
+	auto to_string(vec<T, N, tag> a)
+	{
+		std::string ret{"("};
+		for(size_t k = 0; k != N; ++k)
+		{
+			ret.append(std::to_string(a[k])).append(k != N - 1 ? ", " : ")");
+		}
+		return ret;
+	}
 }
 
 #endif
