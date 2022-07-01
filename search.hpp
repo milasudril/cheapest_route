@@ -76,6 +76,11 @@ namespace cheapest_route
 		return *(ptr + y*width + x);
 	}
 
+	struct node
+	{
+		route_node node;
+		bool visited{false};
+	};
 
 	template<class CostFunction>
 	auto search(from<int64_t> source, to<int64_t> target, CostFunction&& f)
@@ -92,14 +97,14 @@ namespace cheapest_route
 		constexpr auto w = scale_int*1024;
 		constexpr auto h = scale_int*1024;
 
-		auto cost_table = std::make_unique<std::pair<route_node, bool>[]>(w*h);
+		auto cost_table = std::make_unique<node[]>(w*h);
 
 		while(!nodes_to_visit.empty())
 		{
 			auto current = nodes_to_visit.top();
 			nodes_to_visit.pop();
 			auto& cost_item = get_item(cost_table.get(), current.loc, w);
-			cost_item.second = true;
+			cost_item.visited = true;
 
 			if(length_squared(scale_to_float(scale, current.loc) - to<double>{target}) < 1.0)
 			{/*
@@ -124,14 +129,14 @@ namespace cheapest_route
 				{ break; }
 
 				auto& new_cost_item = get_item(cost_table.get(), next_loc, w);
-				if(new_cost_item.second)
+				if(new_cost_item.visited)
 				{ break; }
 
 				rank const new_rank{current.r.total_cost + cost_increment, current.r.tiebreaker + U(rng)};
-				if(new_rank < new_cost_item.first.r)
+				if(new_rank < new_cost_item.node.r)
 				{
-					new_cost_item.first.r = new_rank;
-					new_cost_item.first.loc = from<int64_t>{current.loc.value()};
+					new_cost_item.node.r = new_rank;
+					new_cost_item.node.loc = from<int64_t>{current.loc.value()};
 					nodes_to_visit.push(pending_route_node{next_loc, new_rank});
 				}
 			}
@@ -148,10 +153,10 @@ namespace cheapest_route
 		{
 			auto const loc = scale_to_float(scale, loc_search);
 			auto const& item = get_item(cost_table.get(), loc_search, 2*1024);
-			printf("%.8g %.8g %.8g\n", loc[0], loc[1], item.first.r.total_cost);
-			if(item.first.r.total_cost == std::numeric_limits<double>::infinity())
+			printf("%.8g %.8g %.8g\n", loc[0], loc[1], item.node.r.total_cost);
+			if(item.node.r.total_cost == std::numeric_limits<double>::infinity())
 			{ return 0;}
-			loc_search = item.first.loc;
+			loc_search = item.node.loc;
 		}
 		return 0;
 	}
