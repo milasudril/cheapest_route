@@ -61,6 +61,13 @@ namespace cheapest_route
 		bool visited{false};
 	};
 
+	struct search_result
+	{
+		std::unique_ptr<node[]> cost_table;
+		from<int64_t> termination_point;
+		dimensions_2d<int64_t, boundary_type::inclusive, boundary_type::exclusive, boundary_type::inclusive, boundary_type::exclusive> dom_scaled;
+	};
+
 	auto do_search(from<int64_t> source,
 		to<int64_t> target,
 		dimensions_2d<int64_t, boundary_type::inclusive, boundary_type::exclusive, boundary_type::inclusive, boundary_type::exclusive> const& domain,
@@ -100,7 +107,7 @@ namespace cheapest_route
 			auto const from_loc_scaled = scale_to_float(scale, from_loc);
 
 			if(length_squared(to<double>{target} - from_loc_scaled) < 1.0)
-			{ return std::pair{std::move(cost_table), dom_scaled}; }
+			{ return search_result{std::move(cost_table), from_loc, dom_scaled}; }
 
 			for(auto item : neigbour_offsets)
 			{
@@ -137,17 +144,16 @@ namespace cheapest_route
 		throw std::runtime_error{std::string{"Target "}.append(to_string(target)).append(" not reached")};
 	}
 
-	template<class T>
-	auto follow_path(T const& cost_table, to<int64_t> target)
+	auto follow_path(search_result const& res)
 	{
-		auto loc_search = static_cast<from<int64_t>>(scale_int*target);
+		auto loc_search = res.termination_point;
 		auto loc_prev = scale_to_float(scale, loc_search);
 		path ret;
 		while(true)
 		{
 			auto const loc = scale_to_float(scale, loc_search);
 			auto const dx = elem_abs(loc - loc_prev);
-			auto const& item = get_item(cost_table.first.get(), loc_search, cost_table.second.width());
+			auto const& item = get_item(res.cost_table.get(), loc_search, res.dom_scaled.width());
 			if(std::size(ret) == 0
 				|| item.total_cost == std::numeric_limits<double>::infinity()
 				|| std::max(dx[0], dx[1]) >= 1.0)
@@ -175,6 +181,6 @@ namespace cheapest_route
 		cost_function_ptr cost_function)
 	{
 		auto tmp = do_search(source, target, domain, callback_data, cost_function);
-		return follow_path(tmp, target);
+		return follow_path(tmp);
 	}
 }
