@@ -69,11 +69,12 @@ namespace cheapest_route
 		return *(ptr + y*width + x);
 	}
 
-	struct node
+	struct node:public route_node  // Inherit from node to save some space
 	{
-		route_node node;
 		bool visited{false};
 	};
+
+	static_assert(sizeof(node) == 32);
 
 	template<class CostFunction>
 	auto search(from<int64_t> source, to<int64_t> target, CostFunction&& f)
@@ -114,10 +115,10 @@ namespace cheapest_route
 				{ continue; }
 
 				auto const new_cost = current.total_cost + cost_increment;
-				if(new_cost < new_cost_item.node.total_cost)
+				if(new_cost < new_cost_item.total_cost)
 				{
-					new_cost_item.node.total_cost = new_cost;
-					new_cost_item.node.loc = from<int64_t>{current.loc.value()};
+					new_cost_item.total_cost = new_cost;
+					new_cost_item.loc = from<int64_t>{current.loc.value()};
 					nodes_to_visit.push(pending_route_node{next_loc, new_cost});
 				}
 			}
@@ -138,11 +139,11 @@ namespace cheapest_route
 		{
 			auto const loc = scale_to_float(scale, loc_search);
 			auto const& item = get_item(cost_table.get(), loc_search, scale_int*1024);
-			if(k % scale_int == 0 || item.node.total_cost == std::numeric_limits<double>::infinity())
-			{ printf("%.8g %.8g %.8g\n", loc[0], loc[1], item.node.total_cost); }
-			if(item.node.total_cost == std::numeric_limits<double>::infinity())
+			if(k % scale_int == 0 || item.total_cost == std::numeric_limits<double>::infinity())
+			{ printf("%.8g %.8g %.8g\n", loc[0], loc[1], item.total_cost); }
+			if(item.total_cost == std::numeric_limits<double>::infinity())
 			{ return 0;}
-			loc_search = item.node.loc;
+			loc_search = item.loc;
 			++k;
 		}
 		return 0;
