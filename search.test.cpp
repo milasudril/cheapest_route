@@ -2,6 +2,8 @@
 
 #include "./search.hpp"
 
+#include <algorithm>
+
 int main()
 {
 	int64_t const size = 1024;
