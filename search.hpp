@@ -74,8 +74,6 @@ namespace cheapest_route
 		bool visited{false};
 	};
 
-	static_assert(sizeof(node) == 32);
-
 	template<class CostFunction>
 	auto search(from<int64_t> source, to<int64_t> target, CostFunction&& f)
 	{

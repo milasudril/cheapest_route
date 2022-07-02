@@ -13,8 +13,8 @@ namespace cheapest_route
 	{
 		using value_type = T;
 
-		T begin;
-		T end;
+		T min;
+		T max;
 	};
 
 	template<boundary_type left, boundary_type right, class T>
@@ -26,25 +26,25 @@ namespace cheapest_route
 	template<class T>
 	constexpr bool inside(T x, interval<T, boundary_type::inclusive, boundary_type::inclusive> i)
 	{
-		return x >= i.begin && x <= i.end;
+		return x >= i.min && x <= i.max;
 	}
 
 	template<class T>
 	constexpr bool inside(T x, interval<T, boundary_type::inclusive, boundary_type::exclusive> i)
 	{
-		return x >= i.begin && x < i.end;
+		return x >= i.min && x < i.max;
 	}
 
 	template<class T>
 	constexpr bool inside(T x, interval<T, boundary_type::exclusive, boundary_type::inclusive> i)
 	{
-		return x > i.begin && x <= i.end;
+		return x > i.min && x <= i.max;
 	}
 
 	template<class T>
 	constexpr bool inside(T x, interval<T, boundary_type::exclusive, boundary_type::exclusive> i)
 	{
-		return x > i.begin && x < i.end;
+		return x > i.min && x < i.max;
 	}
 
 	template<class T, boundary_type left, boundary_type right>
