@@ -74,9 +74,12 @@ namespace cheapest_route
 		bool visited{false};
 	};
 
+	enum class quantity_type:int{vector, point};
+
 	struct flat_euclidian_norm
 	{
-		constexpr auto operator()(vec<double, 2> dx) const
+		constexpr auto operator()(vec<double, 2, quantity_type::vector> dx,
+			vec<double, 2, quantity_type::point>) const
 		{ return std::sqrt(length_squared(dx)); }
 	};
 
@@ -84,13 +87,13 @@ namespace cheapest_route
 	{
 		static constexpr auto cost = 1.0;
 
-		constexpr auto operator()(vec<double, 2>) const
+		constexpr auto operator()(vec<double, 2, quantity_type::point>) const
 		{ return cost; }
 	};
 
 	template<class T>
 	constexpr auto operator-(to<T> a, from<T> b)
-	{ return vec<double, 2>{a} - vec<double, 2>{b}; }
+	{ return vec<double, 2, quantity_type::vector>{a} - vec<double, 2, quantity_type::vector>{b}; }
 
 	template<class CostFunction = homogeous_cost, class Metric = flat_euclidian_norm>
 	auto search(from<int64_t> source,
@@ -136,8 +139,10 @@ namespace cheapest_route
 
 				auto const next_scaled = scale_to_float(scale, next_loc);
 				auto const dx = next_scaled - from_loc_scaled;
-				auto const x = 0.5*(vec<double, 2>{next_scaled} + vec<double, 2>{from_loc_scaled});
-				auto const cost_increment = f(x)*ds(dx);
+				vec<double, 2, quantity_type::point> const x{0.5*(
+					vec<double, 2>{next_scaled} + vec<double, 2>{from_loc_scaled})
+				};
+				auto const cost_increment = f(x)*ds(dx, x);
 
 				if(cost_increment == std::numeric_limits<double>::infinity())
 				{ continue; }
