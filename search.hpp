@@ -43,12 +43,12 @@ namespace cheapest_route
 		route_node():loc{}, total_cost{std::numeric_limits<double>::infinity()}{}
 	};
 
-	constexpr auto scale = 2.0;
+	constexpr auto scale = 4.0;
 	constexpr auto scale_int = static_cast<int64_t>(scale);
 
 	constexpr auto gen_neigbour_offset_table()
 	{
-		std::array<to<int64_t>, 16> ret{};
+		std::array<to<int64_t>, 32> ret{};
 		constexpr auto r = scale;
 		for(size_t k = 0; k != std::size(ret); ++k)
 		{
@@ -125,18 +125,25 @@ namespace cheapest_route
 		throw std::runtime_error{std::string{"Target "}.append(to_string(target)).append(" not reached")};
 	}
 
+	template<class CostFunction>
+	auto search(to<int64_t> target, from<int64_t> source, CostFunction&& f)
+	{ return search(source, target, std::forward<CostFunction>(f)); }
+
 	template<class T>
 	auto follow_path(T const& cost_table, to<int64_t> target)
 	{
 		auto loc_search = static_cast<from<int64_t>>(scale_int*target);
+		size_t k = 0;
 		while(true)
 		{
 			auto const loc = scale_to_float(scale, loc_search);
-			auto const& item = get_item(cost_table.get(), loc_search, 2*1024);
-			printf("%.8g %.8g %.8g\n", loc[0], loc[1], item.node.total_cost);
+			auto const& item = get_item(cost_table.get(), loc_search, scale_int*1024);
+			if(k % scale_int == 0 || item.node.total_cost == std::numeric_limits<double>::infinity())
+			{ printf("%.8g %.8g %.8g\n", loc[0], loc[1], item.node.total_cost); }
 			if(item.node.total_cost == std::numeric_limits<double>::infinity())
 			{ return 0;}
 			loc_search = item.node.loc;
+			++k;
 		}
 		return 0;
 	}

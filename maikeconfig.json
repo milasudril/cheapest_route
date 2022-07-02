@@ -27,7 +27,6 @@
                             "-Wall",
                             "-Wextra",
                             "-O3",
-                            "-fno-inline",
                             "-ftree-vectorize",
                             "-ffast-math"
                         ],
@@ -52,15 +51,13 @@
                 "compiler": {
                     "config": {
                         "actions": [
-                            "link",
-                            "run"
+                            "link"
                         ],
                         "cflags": [
                             "-g",
                             "-Wall",
                             "-Wextra",
                             "-O3",
-                            "-fno-inline",
                             "-ftree-vectorize",
                             "-ffast-math"
                         ],

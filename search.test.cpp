@@ -20,28 +20,16 @@ int main()
 		auto const ret = std::sqrt(length_squared(a - cheapest_route::from<double>{b}));
 		return ret;
 	};
-#if 0
-//	auto const t0 = std::chrono::steady_clock::now();
-	auto result1 = search(cheapest_route::from<int64_t>{0, size/3},
-						 cheapest_route::to<int64_t>{size - 1, 2*size/3},
-		[size = static_cast<double>(size) - 0.5](cheapest_route::from<double> a, cheapest_route::to<double> b) {
-
-		if(a[0] < 0 || a[1] >= size || b[0] < 0 || b[1] >= size)
-		{ return std::numeric_limits<double>::infinity(); }
-
-		auto const ret = std::sqrt(length_squared(a - cheapest_route::from<double>{b}));;
-
-	//	printf("(%.8g %.8g) -> (%.8g %.8g) %.8g\n", a[0], a[1], b[0], b[1], ret);
-
-		return ret;
-	});
-#endif
 #if 1
+	auto result1 = search(cheapest_route::to<int64_t>{size - 1, 2*size/3},
+		cheapest_route::from<int64_t>{0, size/3}, cost_function);
+#endif
+#if 0
 	auto result2 = search(cheapest_route::from<int64_t>{size - 1, 2*size/3},
 		cheapest_route::to<int64_t>{0, size/3}, cost_function);
 #endif
 
 //	printf("%.8e\n", std::chrono::duration<double>{std::chrono::steady_clock::now() - t0}.count());
-//	follow_path(result1, cheapest_route::to<int64_t>{size - 1, 2*size/3});
-	follow_path(result2, cheapest_route::to<int64_t>{0, size/3});
+	follow_path(result1, cheapest_route::to<int64_t>{size - 1, 2*size/3});
+//	follow_path(result2, cheapest_route::to<int64_t>{0, size/3});
 }
