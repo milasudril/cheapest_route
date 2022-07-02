@@ -63,6 +63,7 @@ namespace cheapest_route
 
         constexpr T& operator[](size_t k)  { return m_value[k]; }
 
+        constexpr auto operator-() const { return vec{-m_value}; }
 
 	private:
 		vec_t<T, N> m_value;
@@ -101,6 +102,13 @@ namespace cheapest_route
 	{
 		a-=b;
 		return a;
+	}
+
+	template<class T, size_t N, auto tag>
+	constexpr vec<T, N, tag> elem_abs(vec<T, N, tag> a)
+	{
+		auto const tmp = a.value();
+		return vec<T, N, tag>{(tmp < vec_t<T, N>{}) ? -tmp : tmp};
 	}
 
 	template<class T, size_t N, auto tag>

@@ -141,20 +141,29 @@ namespace cheapest_route
 	auto follow_path(T const& cost_table, to<int64_t> target)
 	{
 		auto loc_search = static_cast<from<int64_t>>(scale_int*target);
+		auto loc_prev = scale_to_float(scale, loc_search);
 		path ret;
-		size_t k = 0;
 		while(true)
 		{
 			auto const loc = scale_to_float(scale, loc_search);
+			auto const dx = elem_abs(loc - loc_prev);
 			auto const& item = get_item(cost_table.first.get(), loc_search, cost_table.second.width());
-			if(k % scale_int == 0 || item.total_cost == std::numeric_limits<double>::infinity())
+			if(std::size(ret) == 0
+				|| item.total_cost == std::numeric_limits<double>::infinity()
+				|| std::max(dx[0], dx[1]) >= 1.0)
 			{
 				ret.push_back(path::value_type{vec<double, 2, quantity_type::point>{loc}, item.total_cost});
 			}
+
 			if(item.total_cost == std::numeric_limits<double>::infinity())
-			{ return ret;}
+			{
+				ret.back().total_cost = 0.0;
+				std::reverse(std::begin(ret), std::end(ret));
+				return ret;
+			}
+
+			loc_prev = loc;
 			loc_search = item.loc;
-			++k;
 		}
 		return ret;
 	}
