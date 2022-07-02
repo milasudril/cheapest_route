@@ -102,8 +102,14 @@ namespace cheapest_route
 		CostFunction&& f = homogeous_cost{},
 		Metric&& ds = flat_euclidian_norm{})
 	{
-		if(domain.width() < 1 ||domain.height() < 1)
+		if(domain.width() < 1 || domain.height() < 1)
 		{ std::runtime_error{"Empty search domain"}; }
+
+		if(outside(vec<int64_t, 2>{source}, domain))
+		{ std::runtime_error{"Source location is outside search domain"}; }
+
+		if(outside(vec<int64_t, 2>{target}, domain))
+		{ std::runtime_error{"Target location is outside search domain"}; }
 
 		auto cmp = [](pending_route_node const& a, pending_route_node const& b)
 		{ return is_cheaper(b, a); };
