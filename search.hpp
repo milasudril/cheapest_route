@@ -24,6 +24,12 @@ namespace cheapest_route
 	template<class T>
 	using to = vec<T, 2, node_type::target>;
 
+	enum class quantity_type:int{vector, point};
+
+	template<class T>
+	constexpr auto operator-(to<T> a, from<T> b)
+	{ return vec<double, 2, quantity_type::vector>{a} - vec<double, 2, quantity_type::vector>{b}; }
+
 	struct pending_route_node
 	{
 		to<int64_t> loc;
@@ -74,8 +80,6 @@ namespace cheapest_route
 		bool visited{false};
 	};
 
-	enum class quantity_type:int{vector, point};
-
 	struct flat_euclidian_norm
 	{
 		constexpr auto operator()(vec<double, 2, quantity_type::vector> dx,
@@ -90,10 +94,6 @@ namespace cheapest_route
 		constexpr auto operator()(vec<double, 2, quantity_type::point>) const
 		{ return cost; }
 	};
-
-	template<class T>
-	constexpr auto operator-(to<T> a, from<T> b)
-	{ return vec<double, 2, quantity_type::vector>{a} - vec<double, 2, quantity_type::vector>{b}; }
 
 	template<class CostFunction = homogeous_cost, class Metric = flat_euclidian_norm>
 	auto search(from<int64_t> source,
