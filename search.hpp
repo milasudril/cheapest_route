@@ -92,8 +92,8 @@ namespace cheapest_route
 
 		auto const dom_scaled = scale_int*domain - vec<int64_t, 2>{scale_int - 1, scale_int - 1};
 
-		constexpr auto w = scale_int*1024;
-		constexpr auto h = scale_int*1024;
+		auto const w = dom_scaled.width();
+		auto const h = dom_scaled.height();
 
 		auto cost_table = std::make_unique<node[]>(w*h);
 
@@ -105,7 +105,7 @@ namespace cheapest_route
 			cost_item.visited = true;
 
 			if(length_squared(scale_to_float(scale, current.loc) - to<double>{target}) < 1.0)
-			{ return cost_table; }
+			{ return std::pair{std::move(cost_table), dom_scaled}; }
 
 			for(auto item : neigbour_offsets)
 			{
@@ -149,7 +149,7 @@ namespace cheapest_route
 		while(true)
 		{
 			auto const loc = scale_to_float(scale, loc_search);
-			auto const& item = get_item(cost_table.get(), loc_search, scale_int*1024);
+			auto const& item = get_item(cost_table.first.get(), loc_search, cost_table.second.width());
 			if(k % scale_int == 0 || item.total_cost == std::numeric_limits<double>::infinity())
 			{ printf("%.8g %.8g %.8g\n", loc[0], loc[1], item.total_cost); }
 			if(item.total_cost == std::numeric_limits<double>::infinity())
