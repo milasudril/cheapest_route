@@ -76,28 +76,31 @@ namespace cheapest_route
 
 	struct flat_euclidian_norm
 	{
-		constexpr auto operator()(cheapest_route::from<double> a, cheapest_route::to<double> b) const
-		{ return std::sqrt(length_squared(a - cheapest_route::from<double>{b})); }
+		constexpr auto operator()(vec<double, 2> dx) const
+		{ return std::sqrt(length_squared(dx)); }
 	};
 
 	struct homogeous_cost
 	{
 		static constexpr auto cost = 1.0;
 
-		constexpr auto operator()(cheapest_route::to<double>) const
+		constexpr auto operator()(vec<double, 2>) const
 		{ return cost; }
 	};
+
+	template<class T>
+	constexpr auto operator-(to<T> a, from<T> b)
+	{ return vec<double, 2>{a} - vec<double, 2>{b}; }
 
 	template<class CostFunction = homogeous_cost, class Metric = flat_euclidian_norm>
 	auto search(from<int64_t> source,
 		to<int64_t> target,
 		dimensions_2d<int64_t, boundary_type::inclusive, boundary_type::exclusive, boundary_type::inclusive, boundary_type::exclusive>  const& domain,
 		CostFunction&& f = homogeous_cost{},
-		Metric&& dx = flat_euclidian_norm{})
+		Metric&& ds = flat_euclidian_norm{})
 	{
 		if(domain.width() < 1 ||domain.height() < 1)
 		{ std::runtime_error{"Empty search domain"}; }
-
 
 		auto cmp = [](pending_route_node const& a, pending_route_node const& b)
 		{ return is_cheaper(b, a); };
@@ -119,7 +122,10 @@ namespace cheapest_route
 			auto& cost_item = get_item(cost_table.get(), current.loc, w);
 			cost_item.visited = true;
 
-			if(length_squared(scale_to_float(scale, current.loc) - to<double>{target}) < 1.0)
+			auto const from_loc = from<int64_t>{current.loc};
+			auto const from_loc_scaled = scale_to_float(scale, from_loc);
+
+			if(length_squared(to<double>{target} - from_loc_scaled) < 1.0)
 			{ return std::pair{std::move(cost_table), dom_scaled}; }
 
 			for(auto item : neigbour_offsets)
@@ -128,11 +134,11 @@ namespace cheapest_route
 				if(outside(vec<int64_t, 2>(next_loc), dom_scaled))
 				{ continue; }
 
-				auto const current_scaled = scale_to_float(scale, from<int64_t>{current.loc});
 				auto const next_scaled = scale_to_float(scale, next_loc);
+				auto const dx = next_scaled - from_loc_scaled;
+				auto const x = 0.5*(vec<double, 2>{next_scaled} + vec<double, 2>{from_loc_scaled});
+				auto const cost_increment = f(x)*ds(dx);
 
-				auto const cost_increment = f(next_scaled)*dx(current_scaled, next_scaled);
-				static_assert(std::is_same_v<std::decay_t<decltype(cost_increment)>, double>);
 				if(cost_increment == std::numeric_limits<double>::infinity())
 				{ continue; }
 
