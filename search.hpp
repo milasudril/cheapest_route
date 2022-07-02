@@ -1,7 +1,7 @@
 #ifndef CHEAPESTROUTE_SEARCH_HPP
 #define CHEAPESTROUTE_SEARCH_HPP
 
-#include "./vec.hpp"
+#include "./rectangle.hpp"
 
 #include <vector>
 #include <queue>
@@ -74,14 +74,23 @@ namespace cheapest_route
 		bool visited{false};
 	};
 
-	template<class CostFunction>
-	auto search(from<int64_t> source, to<int64_t> target, CostFunction&& f)
+	template<boundary_type left, boundary_type top, class CostFunction>
+	auto search(from<int64_t> source,
+				to<int64_t> target,
+				dimensions_2d<int64_t, left, boundary_type::exclusive, top, boundary_type::exclusive> const& domain,
+			 CostFunction&& f)
 	{
+		if(domain.width() < 1 ||domain.height() < 1)
+		{ std::runtime_error{"Empty search domain"}; }
+
+
 		auto cmp = [](pending_route_node const& a, pending_route_node const& b)
 		{ return is_cheaper(b, a); };
 
 		std::priority_queue<pending_route_node, std::vector<pending_route_node>, decltype(cmp)> nodes_to_visit;
 		nodes_to_visit.push(pending_route_node{scale_int*to<int64_t>{source}, 0.0});
+
+		auto const dom_scaled = scale_int*domain - vec<int64_t, 2>{scale_int - 1, scale_int - 1};
 
 		constexpr auto w = scale_int*1024;
 		constexpr auto h = scale_int*1024;
@@ -101,6 +110,8 @@ namespace cheapest_route
 			for(auto item : neigbour_offsets)
 			{
  				auto const next_loc = current.loc + item;
+				if(outside(vec<int64_t, 2>(next_loc), dom_scaled))
+				{ continue; }
 
 				auto const cost_increment = f(scale_to_float(scale, from<int64_t>{current.loc}),
 											  scale_to_float(scale, next_loc));
@@ -124,9 +135,11 @@ namespace cheapest_route
 		throw std::runtime_error{std::string{"Target "}.append(to_string(target)).append(" not reached")};
 	}
 
-	template<class CostFunction>
-	auto search(to<int64_t> target, from<int64_t> source, CostFunction&& f)
-	{ return search(source, target, std::forward<CostFunction>(f)); }
+	template<boundary_type left, boundary_type top, class CostFunction>
+	auto search(to<int64_t> target, from<int64_t> source,
+		dimensions_2d<int64_t, left, boundary_type::exclusive, top, boundary_type::exclusive> const& domain,
+		CostFunction&& f)
+	{ return search(source, target, domain, std::forward<CostFunction>(f)); }
 
 	template<class T>
 	auto follow_path(T const& cost_table, to<int64_t> target)
