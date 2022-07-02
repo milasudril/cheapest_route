@@ -106,7 +106,7 @@ namespace cheapest_route
 			auto const from_loc = from<int64_t>{current.loc};
 			auto const from_loc_scaled = scale_to_float(scale, from_loc);
 
-			if(length_squared(to<double>{target} - from_loc_scaled) < 1.0)
+			if(length_squared(to<double>{target} - from_loc_scaled) < 1.0/(scale*scale))
 			{ return search_result{std::move(cost_table), from_loc, dom_scaled}; }
 
 			for(auto item : neigbour_offsets)
