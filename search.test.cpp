@@ -1,7 +1,7 @@
 //@	{"target":{"name":"search.test"}}
 
 #include "./search.hpp"
-#include "./interval.hpp"
+#include "./rectangle.hpp"
 
 #include <chrono>
 
@@ -11,10 +11,10 @@ int main()
 	auto const valid_range =
 		cheapest_route::make_interval<cheapest_route::boundary_type::inclusive,
 			cheapest_route::boundary_type::exclusive>(0.0, static_cast<double>(size));
-	auto cost_function = [valid_range](cheapest_route::from<double> a, cheapest_route::to<double> b) {
-
-		if(outside(a[0], valid_range) || outside(a[1], valid_range)
-			|| outside(b[0], valid_range) || outside(b[1], valid_range))
+	auto const rect = cheapest_route::rectangle{valid_range, valid_range};
+	auto cost_function = [rect](cheapest_route::from<double> a, cheapest_route::to<double> b) {
+		if(outside(cheapest_route::vec<double, 2>{a}, rect)
+			|| outside(cheapest_route::vec<double, 2>{b}, rect))
 		{ return std::numeric_limits<double>::infinity(); }
 
 		auto const ret = std::sqrt(length_squared(a - cheapest_route::from<double>{b}));

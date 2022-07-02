@@ -9,7 +9,7 @@
 namespace cheapest_route
 {
 	template<class T, size_t N>
-	requires(std::is_arithmetic_v<T>)
+	requires(std::is_arithmetic_v<T> && N != 0)
 	using vec_t [[gnu::vector_size(N*sizeof(T))]] = T;
 
 	using vec2i_t = vec_t<int64_t, 2>;
@@ -23,7 +23,7 @@ namespace cheapest_route
     constexpr auto vector_cast(vec_t<T, 4> x)
     {return vec_t<U, 4>{static_cast<U>(x[0]),static_cast<U>(x[1]), static_cast<U>(x[2]), static_cast<U>(x[3])}; }
 
-	template<class T, size_t N, auto tag>
+	template<class T, size_t N, auto tag = 0>
 	class vec
 	{
 	public:
