@@ -1,3 +1,5 @@
+//	{"dependencies_extra":[{"name":"./search.o", "rel":"implementation"}]}
+
 #ifndef CHEAPESTROUTE_SEARCH_HPP
 #define CHEAPESTROUTE_SEARCH_HPP
 
@@ -11,8 +13,6 @@
 #include <algorithm>
 #include <ranges>
 #include <memory>
-#include <pcg_random.hpp>
-#include <chrono>
 
 namespace cheapest_route
 {
@@ -44,6 +44,40 @@ namespace cheapest_route
 		constexpr auto operator()(vec<double, 2, quantity_type::point>) const
 		{ return cost; }
 	};
+
+	struct visited_node
+	{
+		vec<double, 2, quantity_type::point> loc;
+		double total_cost;
+	};
+
+	using path = std::vector<visited_node>;
+
+	using cost_function_ptr = double (*)(void const* callback_data,
+		vec<double, 2, quantity_type::vector>,
+		vec<double, 2, quantity_type::point>);
+
+	path search_impl(from<int64_t> source,
+		to<int64_t> target,
+		dimensions_2d<int64_t, boundary_type::inclusive, boundary_type::exclusive, boundary_type::inclusive, boundary_type::exclusive> const& domain,
+		void const* callback_data,
+		cost_function_ptr cost_function);
+
+	template<class CostFunction = homogeous_cost, class Metric = flat_euclidian_norm>
+	auto search(from<int64_t> source,
+		to<int64_t> target,
+		dimensions_2d<int64_t, boundary_type::inclusive, boundary_type::exclusive, boundary_type::inclusive, boundary_type::exclusive>  const& domain,
+		CostFunction&& f = homogeous_cost{},
+		Metric&& ds = flat_euclidian_norm{})
+	{
+		std::pair functions{std::forward<CostFunction>(f), std::forward<Metric>(ds)};
+		return search_impl(source, target, domain, &functions, [](void const* func_pair,
+			vec<double, 2, quantity_type::vector> dx,
+			vec<double, 2, quantity_type::point> x){
+			auto const& data = *static_cast<decltype(functions) const*>(func_pair);
+			return data.first(x)*data.second(dx, x);
+		});
+	}
 
 	struct pending_route_node
 	{
@@ -95,13 +129,11 @@ namespace cheapest_route
 		bool visited{false};
 	};
 
-
-	template<class CostFunction = homogeous_cost, class Metric = flat_euclidian_norm>
-	auto search(from<int64_t> source,
+	auto do_search(from<int64_t> source,
 		to<int64_t> target,
-		dimensions_2d<int64_t, boundary_type::inclusive, boundary_type::exclusive, boundary_type::inclusive, boundary_type::exclusive>  const& domain,
-		CostFunction&& f = homogeous_cost{},
-		Metric&& ds = flat_euclidian_norm{})
+		dimensions_2d<int64_t, boundary_type::inclusive, boundary_type::exclusive, boundary_type::inclusive, boundary_type::exclusive> const& domain,
+		void const* callback_data,
+		cost_function_ptr cost_function)
 	{
 		if(domain.width() < 1 || domain.height() < 1)
 		{ std::runtime_error{"Empty search domain"}; }
@@ -149,7 +181,7 @@ namespace cheapest_route
 				vec<double, 2, quantity_type::point> const x{0.5*(
 					vec<double, 2>{next_scaled} + vec<double, 2>{from_loc_scaled})
 				};
-				auto const cost_increment = f(x)*ds(dx, x);
+				auto const cost_increment = cost_function(callback_data, dx, x);
 
 				if(cost_increment < 0.0)
 				{ throw std::runtime_error{"Cost function must be positive"}; }
@@ -177,19 +209,32 @@ namespace cheapest_route
 	auto follow_path(T const& cost_table, to<int64_t> target)
 	{
 		auto loc_search = static_cast<from<int64_t>>(scale_int*target);
+		path ret;
 		size_t k = 0;
 		while(true)
 		{
 			auto const loc = scale_to_float(scale, loc_search);
 			auto const& item = get_item(cost_table.first.get(), loc_search, cost_table.second.width());
 			if(k % scale_int == 0 || item.total_cost == std::numeric_limits<double>::infinity())
-			{ printf("%.8g %.8g %.8g\n", loc[0], loc[1], item.total_cost); }
+			{
+				ret.push_back(path::value_type{vec<double, 2, quantity_type::point>{loc}, item.total_cost});
+			}
 			if(item.total_cost == std::numeric_limits<double>::infinity())
-			{ return 0;}
+			{ return ret;}
 			loc_search = item.loc;
 			++k;
 		}
-		return 0;
+		return ret;
+	}
+
+	path search_impl(from<int64_t> source,
+		to<int64_t> target,
+		dimensions_2d<int64_t, boundary_type::inclusive, boundary_type::exclusive, boundary_type::inclusive, boundary_type::exclusive> const& domain,
+		void const* callback_data,
+		cost_function_ptr cost_function)
+	{
+		auto tmp = do_search(source, target, domain, callback_data, cost_function);
+		return follow_path(tmp, target);
 	}
 }
 

@@ -13,5 +13,7 @@ int main()
 	auto result = search(cheapest_route::from<int64_t>{size - 1, 2*size/3},
 		cheapest_route::to<int64_t>{0, size/3}, rect);
 
-	follow_path(result, cheapest_route::to<int64_t>{0, size/3});
+	std::ranges::for_each(result, [](auto const& item){
+		printf("%.8g %.8g %.8g\n", item.loc[0], item.loc[1], item.total_cost);
+	});
 }
