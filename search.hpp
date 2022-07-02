@@ -74,11 +74,11 @@ namespace cheapest_route
 		bool visited{false};
 	};
 
-	template<boundary_type left, boundary_type top, class CostFunction>
+	template<class CostFunction>
 	auto search(from<int64_t> source,
-				to<int64_t> target,
-				dimensions_2d<int64_t, left, boundary_type::exclusive, top, boundary_type::exclusive> const& domain,
-			 CostFunction&& f)
+		to<int64_t> target,
+		dimensions_2d<int64_t, boundary_type::inclusive, boundary_type::exclusive, boundary_type::inclusive, boundary_type::exclusive>  const& domain,
+		CostFunction&& f)
 	{
 		if(domain.width() < 1 ||domain.height() < 1)
 		{ std::runtime_error{"Empty search domain"}; }
@@ -135,9 +135,9 @@ namespace cheapest_route
 		throw std::runtime_error{std::string{"Target "}.append(to_string(target)).append(" not reached")};
 	}
 
-	template<boundary_type left, boundary_type top, class CostFunction>
+	template<class CostFunction>
 	auto search(to<int64_t> target, from<int64_t> source,
-		dimensions_2d<int64_t, left, boundary_type::exclusive, top, boundary_type::exclusive> const& domain,
+		dimensions_2d<int64_t, boundary_type::inclusive, boundary_type::exclusive, boundary_type::inclusive, boundary_type::exclusive> const& domain,
 		CostFunction&& f)
 	{ return search(source, target, domain, std::forward<CostFunction>(f)); }
 
