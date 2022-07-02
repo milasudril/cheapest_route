@@ -150,6 +150,9 @@ namespace cheapest_route
 				};
 				auto const cost_increment = f(x)*ds(dx, x);
 
+				if(cost_increment < 0.0)
+				{ throw std::runtime_error{"Cost function must be positive"}; }
+
 				if(cost_increment == std::numeric_limits<double>::infinity())
 				{ continue; }
 
