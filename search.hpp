@@ -10,7 +10,6 @@
 #include <array>
 #include <algorithm>
 #include <ranges>
-#include <random>
 #include <memory>
 #include <pcg_random.hpp>
 #include <chrono>
@@ -25,31 +24,23 @@ namespace cheapest_route
 	template<class T>
 	using to = vec<T, 2, node_type::target>;
 
-	struct rank
-	{
-		double total_cost;
-		double tiebreaker;
-
-		auto operator<=>(rank const&) const = default;
-	};
-
 	struct pending_route_node
 	{
 		to<int64_t> loc;
-		rank r;
+		double total_cost;
 	};
 
 	bool is_cheaper(pending_route_node const& a, pending_route_node const& b)
 	{
-		return a.r < b.r;
+		return a.total_cost < b.total_cost;
 	}
 
 	struct route_node
 	{
 		from<int64_t> loc;
-		rank r;
+		double total_cost;
 
-		route_node():loc{}, r{std::numeric_limits<double>::infinity(), 0}{}
+		route_node():loc{}, total_cost{std::numeric_limits<double>::infinity()}{}
 	};
 
 	constexpr auto scale = 2.0;
@@ -87,14 +78,11 @@ namespace cheapest_route
 	template<class CostFunction>
 	auto search(from<int64_t> source, to<int64_t> target, CostFunction&& f)
 	{
-		pcg64 rng{static_cast<__int128 unsigned>((std::chrono::steady_clock::now().time_since_epoch()).count())};
-		std::uniform_real_distribution<double> U{-1.0, 1.0};
-
 		auto cmp = [](pending_route_node const& a, pending_route_node const& b)
 		{ return is_cheaper(b, a); };
 
 		std::priority_queue<pending_route_node, std::vector<pending_route_node>, decltype(cmp)> nodes_to_visit;
-		nodes_to_visit.push(pending_route_node{scale_int*to<int64_t>{source}, rank{0.0, 16.0*U(rng)}});
+		nodes_to_visit.push(pending_route_node{scale_int*to<int64_t>{source}, 0.0});
 
 		constexpr auto w = scale_int*1024;
 		constexpr auto h = scale_int*1024;
@@ -125,19 +113,15 @@ namespace cheapest_route
 				if(new_cost_item.visited)
 				{ continue; }
 
-				constexpr auto alpha = 0.5;
-
-				rank const new_rank{current.r.total_cost + cost_increment,
-					(1.0 - alpha)*current.r.tiebreaker + alpha*1024.0*U(rng)};
-				if(new_rank < new_cost_item.node.r)
+				auto const new_cost = current.total_cost + cost_increment;
+				if(new_cost < new_cost_item.node.total_cost)
 				{
-					new_cost_item.node.r = new_rank;
+					new_cost_item.node.total_cost = new_cost;
 					new_cost_item.node.loc = from<int64_t>{current.loc.value()};
-					nodes_to_visit.push(pending_route_node{next_loc, new_rank});
+					nodes_to_visit.push(pending_route_node{next_loc, new_cost});
 				}
 			}
 		}
-		fflush(stdout);
 		throw std::runtime_error{std::string{"Target "}.append(to_string(target)).append(" not reached")};
 	}
 
@@ -149,8 +133,8 @@ namespace cheapest_route
 		{
 			auto const loc = scale_to_float(scale, loc_search);
 			auto const& item = get_item(cost_table.get(), loc_search, 2*1024);
-			printf("%.8g %.8g %.8g\n", loc[0], loc[1], item.node.r.total_cost);
-			if(item.node.r.total_cost == std::numeric_limits<double>::infinity())
+			printf("%.8g %.8g %.8g\n", loc[0], loc[1], item.node.total_cost);
+			if(item.node.total_cost == std::numeric_limits<double>::infinity())
 			{ return 0;}
 			loc_search = item.node.loc;
 		}
