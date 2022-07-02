@@ -51,7 +51,8 @@
                 "compiler": {
                     "config": {
                         "actions": [
-                            "link"
+                            "link",
+                            "run"
                         ],
                         "cflags": [
                             "-g",
