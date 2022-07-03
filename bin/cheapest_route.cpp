@@ -82,13 +82,10 @@ int main(int argc, char** argv) try
 	auto output_file =
 		get_or<cheapest_route::output_file>(get_if<std::filesystem::path>(cmdline, "output.file"),
 			cheapest_route::output_file{cheapest_route::std_output_stream{stdout}});
-
-	cheapest_route::path_file_format const output_format{cmdline["output.format"]};
+	cheapest_route::path_file_encoder const path_encoder{cmdline["output.format"]};
 	cheapest_route::length_unit const output_lu{cmdline["output.length_unit"]};
 
-	std::ranges::for_each(result, [](auto const& item){
-		printf("%.8g %.8g %.8g\n", item.loc[0], item.loc[1], item.total_cost);
-	});
+	path_encoder(output_file.get(), result, length_unit, scale);
 }
 catch(std::exception const& err)
 {
