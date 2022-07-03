@@ -48,6 +48,22 @@ namespace cheapest_route
 	private:
 		std::variant<FILE*, file_handle> m_file;
 	};
+
+	class input_file
+	{
+	public:
+		explicit input_file(std::filesystem::path const& path):
+			m_file{file_handle{fopen(path.c_str(), "rb")}}
+		{}
+
+		auto get() const
+		{
+			m_file.get();
+		}
+
+	private:
+		file_handle m_file;
+	};
 };
 
 #endif
