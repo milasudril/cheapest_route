@@ -10,7 +10,7 @@
 
 namespace cheapest_route
 {
-	struct distance_only_cost
+	struct flat_earth_distance_with_terrain
 	{
 		pixel_store::image_span<float const> image;
 		scaling_factors scale;
@@ -44,7 +44,7 @@ int main(int argc, char** argv) try
 	auto const result = search(origin_loc,
 		dest_loc,
 		domain,
-		cheapest_route::distance_only_cost{heightmap.pixels(), scale});
+		cheapest_route::flat_earth_distance_with_terrain{heightmap.pixels(), scale});
 
 	auto output =
 		get_or<cheapest_route::output_file>(get_if<std::filesystem::path>(cmdline, "output"),
