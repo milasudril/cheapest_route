@@ -1,11 +1,22 @@
 //@	{"target":{"name":"cheapest_route.o"}}
 
+#include "./cmdline.hpp"
 #include "lib/search.hpp"
 
-#include <algorithm>
+#include <filesystem>
 
-int main()
+int main(int argc, char** argv) try
 {
+	cheapest_route::command_line cmdline{argc, argv};
+
+	std::filesystem::path heighmap_path{cmdline["heightmap"]};
+	auto const cost_function_path = get_if<std::filesystem::path>(cmdline, "cost_function");
+	if(!cost_function_path.has_value())
+	{
+		fprintf(stderr, "(!) No cost_function set, using homogenous cost of 1\n");
+	}
+
+#if 0
 	int64_t const size = 1024;
 	auto const valid_range =
 		cheapest_route::make_interval<cheapest_route::boundary_type::inclusive,
@@ -18,4 +29,10 @@ int main()
 	std::ranges::for_each(result, [](auto const& item){
 		printf("%.8g %.8g %.8g\n", item.loc[0], item.loc[1], item.total_cost);
 	});
+#endif
+}
+catch(std::exception const& err)
+{
+	fprintf(stderr, "cheapest_route: %s\n", err.what());
+	return -1;
 }
