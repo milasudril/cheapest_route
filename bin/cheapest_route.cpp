@@ -2,6 +2,8 @@
 
 #include "./cmdline.hpp"
 #include "./io_utils.hpp"
+#include "./scaling_factors.hpp"
+
 #include "lib/search.hpp"
 
 int main(int argc, char** argv) try
@@ -10,6 +12,7 @@ int main(int argc, char** argv) try
 
 	cheapest_route::from<int64_t> origin_loc{cmdline["origin"]};
 	cheapest_route::to<int64_t> dest_loc{cmdline["destination"]};
+	auto const scale = get_or(cmdline, "scaling_factors", cheapest_route::scaling_factors{1.0f, 1.0f, 1.0f});
 
 	std::filesystem::path heighmap_path{cmdline["heightmap"]};
 	auto const cost_function_path = get_if<std::filesystem::path>(cmdline, "cost_function");

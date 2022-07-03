@@ -17,6 +17,8 @@ namespace cheapest_route
 
 	using vec2i_t = vec_t<int64_t, 2>;
 	using vec2f_t = vec_t<double, 2>;
+	using vec4i_t = vec_t<int32_t, 4>;
+	using vec4f_t = vec_t<float, 4>;
 
     template<class U, class T>
     constexpr auto vector_cast(vec_t<T, 2> x)

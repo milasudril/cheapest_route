@@ -57,6 +57,12 @@ namespace cheapest_route
 		return std::stol(val);
 	}
 
+	template<>
+	inline float from_string<float>(std::string const& val)
+	{
+		return std::stof(val);
+	}
+
 	template<class T, size_t N>
 	static_value_array<T, N>::static_value_array(std::string_view val_str)
 	{
