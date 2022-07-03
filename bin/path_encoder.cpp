@@ -35,12 +35,27 @@ namespace
 </g>
 </svg>)", f);
 	}
+
+	void encode_txt(FILE* f,
+		cheapest_route::length_unit,
+		cheapest_route::scaling_factors,
+		cheapest_route::search_domain,
+		cheapest_route::path const& nodes)
+	{
+		// TODO: Apply scaling
+		std::ranges::for_each(nodes, [f](auto const& item){
+			fprintf(f, "%.8e %.8e %.8e\n", item.loc[0], item.loc[1], item.total_cost);
+		});
+	}
 }
 
 cheapest_route::path_encoder::path_encoder(std::string_view str)
 {
 	if(str == "svg")
 	{ encode = encode_svg; }
+	else
+	if(str == "txt")
+	{ encode = encode_txt; }
 #if 0
 	else
 	if(str == "json")

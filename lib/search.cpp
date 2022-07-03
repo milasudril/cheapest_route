@@ -107,7 +107,9 @@ namespace
 			auto const from_loc_scaled = scale_to_float(scale, from_loc);
 
 			if(length_squared(cheapest_route::to<double>{target} - from_loc_scaled) < 1.0/(scale*scale))
-			{ return search_result{std::move(cost_table), from_loc, dom_scaled}; }
+			{
+				return search_result{std::move(cost_table), from_loc, dom_scaled};
+			}
 
 			for(auto item : neigbour_offsets)
 			{
@@ -151,16 +153,11 @@ namespace
 		while(true)
 		{
 			auto const loc = scale_to_float(scale, loc_search);
-			auto const dx = elem_abs(loc - loc_prev);
 			auto const& item = get_item(res.cost_table.get(), loc_search, res.dom_scaled.width());
-			if(std::size(ret) == 0
-				|| item.total_cost == std::numeric_limits<double>::infinity()
-				|| std::max(dx[0], dx[1]) >= 1.0)
-			{
-				ret.push_back(cheapest_route::path::value_type{
-					cheapest_route::vec<double, 2, cheapest_route::quantity_type::point>{loc}, item.total_cost
-				});
-			}
+
+			ret.push_back(cheapest_route::path::value_type{
+				cheapest_route::vec<double, 2, cheapest_route::quantity_type::point>{loc}, item.total_cost
+			});
 
 			if(item.total_cost == std::numeric_limits<double>::infinity())
 			{
