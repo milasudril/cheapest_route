@@ -1,3 +1,5 @@
+//@	{"dependencies_extra":[{"ref":"./image_loader.o", "rel":"implementation"}]}
+
 #ifndef CHEAPESTROUTE_IMAGELOADER_HPP
 #define CHEAPESTROUTE_IMAGELOADER_HPP
 

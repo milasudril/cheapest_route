@@ -23,6 +23,8 @@ int main(int argc, char** argv) try
 		fprintf(stderr, "(!) No cost_function set, using homogenous cost of 1\n");
 	}
 
+	auto const heighmap = cheapest_route::load_image(heighmap_path);
+
 	auto output =
 		get_or<cheapest_route::output_file>(get_if<std::filesystem::path>(cmdline, "output"),
 			cheapest_route::output_file{cheapest_route::std_output_stream{stdout}});
