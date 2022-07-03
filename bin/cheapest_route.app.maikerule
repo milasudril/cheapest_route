@@ -1,0 +1,4 @@
+{
+	"target":{"name":"cheapest_route"},
+	"dependencies":[{"ref":"./cheapest_route.o", "origin": "generated", "rel":"implementation"}]
+}
