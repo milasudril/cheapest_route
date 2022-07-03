@@ -10,7 +10,11 @@ namespace cheapest_route
 	public:
 		explicit length_unit(std::string_view str);
 
+		double factor() const
+		{ return m_factor; }
+
 	private:
+		double m_factor;
 	};
 }
 

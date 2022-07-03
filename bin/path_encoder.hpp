@@ -1,7 +1,10 @@
+//@	{"dependencies_extra":[{"ref":"./path_encoder.o", "rel":"implementation"}]}
+
 #ifndef CHEAPESTROUT_PATHENCODER_HPP
 #define CHEAPESTROUT_PATHENCODER_HPP
 
 #include "./length_unit.hpp"
+#include "./scaling_factors.hpp"
 
 #include "lib/search.hpp"
 
@@ -14,11 +17,11 @@ namespace cheapest_route
 	public:
 		explicit path_encoder(std::string_view str);
 
-		void operator()(FILE* f, path const& nodes, length_unit lu, scaling_factors factors) const
-		{ encode(f, nodes, lu, factors); }
+		void operator()(FILE* f, length_unit lu, scaling_factors factors, search_domain domain, path const& nodes) const
+		{ encode(f, lu, factors, domain, nodes); }
 
 	private:
-		using func = void (*)(FILE*, path const&, length_unit, scaling_factors);
+		using func = void (*)(FILE* f, length_unit lu, scaling_factors factors, search_domain domain, path const& nodes);
 		func encode;
 	};
 }

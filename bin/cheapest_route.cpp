@@ -87,7 +87,7 @@ int main(int argc, char** argv) try
 	cheapest_route::path_encoder const encode{cmdline["output.format"]};
 	cheapest_route::length_unit const output_lu{cmdline["output.length_unit"]};
 
-	encode(output_file.get(), result, output_lu, scale);
+	encode(output_file.get(), output_lu, scale, domain, result);
 }
 catch(std::exception const& err)
 {
