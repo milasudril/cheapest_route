@@ -1,48 +1,8 @@
 //@	{"target":{"name":"cheapest_route.o"}}
 
 #include "./cmdline.hpp"
+#include "./io_utils.hpp"
 #include "lib/search.hpp"
-
-#include <filesystem>
-#include <variant>
-
-#include <cassert>
-
-namespace cheapest_route
-{
-	struct std_output_stream
-	{
-		FILE* file;
-	};
-
-	struct file_deleter
-	{
-		void operator()(FILE* f) const
-		{
-			if(f != nullptr)
-			{ fclose(f); }
-		}
-	};
-
-	using file_handle = std::unique_ptr<FILE, file_deleter>;
-
-	class output_file
-	{
-	public:
-		explicit output_file(std::filesystem::path const& path):
-			m_file{file_handle{fopen(path.c_str(), "wb")}}
-		{}
-
-		explicit output_file(std_output_stream stream):m_file{stream.file}
-		{}
-
-		bool is_owner() const
-		{ return m_file.index() == 1; }
-
-	private:
-		std::variant<FILE*, file_handle> m_file;
-	};
-};
 
 int main(int argc, char** argv) try
 {
