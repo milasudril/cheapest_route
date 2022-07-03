@@ -35,6 +35,9 @@ namespace cheapest_route
         requires(sizeof...(Args) == N - 1)
 		constexpr explicit vec(T first, Args ... args):m_value{first, args...}{}
 
+		explicit vec(std::string_view src):m_value{}
+		{}
+
 		constexpr auto value() const { return m_value; }
 
 		constexpr vec& operator+=(vec other)

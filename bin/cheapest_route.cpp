@@ -8,6 +8,9 @@ int main(int argc, char** argv) try
 {
 	cheapest_route::command_line cmdline{argc, argv};
 
+	cheapest_route::from<int64_t> origin_loc{cmdline["origin"]};
+	cheapest_route::to<int64_t> dest_loc{cmdline["destination"]};
+
 	std::filesystem::path heighmap_path{cmdline["heightmap"]};
 	auto const cost_function_path = get_if<std::filesystem::path>(cmdline, "cost_function");
 	if(!cost_function_path.has_value())
