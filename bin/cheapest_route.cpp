@@ -4,6 +4,45 @@
 #include "lib/search.hpp"
 
 #include <filesystem>
+#include <variant>
+
+#include <cassert>
+
+namespace cheapest_route
+{
+	struct std_output_stream
+	{
+		FILE* file;
+	};
+
+	struct file_deleter
+	{
+		void operator()(FILE* f) const
+		{
+			if(f != nullptr)
+			{ fclose(f); }
+		}
+	};
+
+	using file_handle = std::unique_ptr<FILE, file_deleter>;
+
+	class output_file
+	{
+	public:
+		explicit output_file(std::filesystem::path const& path):
+			m_file{file_handle{fopen(path.c_str(), "wb")}}
+		{}
+
+		explicit output_file(std_output_stream stream):m_file{stream.file}
+		{}
+
+		bool is_owner() const
+		{ return m_file.index() == 1; }
+
+	private:
+		std::variant<FILE*, file_handle> m_file;
+	};
+};
 
 int main(int argc, char** argv) try
 {
@@ -16,6 +55,9 @@ int main(int argc, char** argv) try
 		fprintf(stderr, "(!) No cost_function set, using homogenous cost of 1\n");
 	}
 
+	auto output =
+		get_or<cheapest_route::output_file>(get_if<std::filesystem::path>(cmdline, "output"),
+			cheapest_route::output_file{cheapest_route::std_output_stream{stdout}});
 #if 0
 	int64_t const size = 1024;
 	auto const valid_range =
