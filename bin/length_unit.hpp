@@ -1,3 +1,5 @@
+//@	{"dependencies_extra":[{"ref":"./length_unit.o", "rel":"implementation"}]}
+
 #ifndef CHEAPESTROUT_LENGTHUNIT_HPP
 #define CHEAPESTROUT_LENGTHUNIT_HPP
 
