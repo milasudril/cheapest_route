@@ -8,14 +8,20 @@
 #include "lib/search.hpp"
 #include "pixel_store/image.hpp"
 
+#include <cassert>
+
 namespace cheapest_route
 {
 	float interp(pixel_store::image_span<float const> img, vec2f_t loc)
 	{
 		auto const x_0  = static_cast<int64_t>(loc[0]);
 		auto const y_0  = static_cast<int64_t>(loc[1]);
-		auto const x_1  = x_0 + 1;
-		auto const y_1  = y_0 + 1;
+
+		auto const w = static_cast<int64_t>(img.width());
+		auto const h = static_cast<int64_t>(img.height());
+
+		auto const x_1  = std::min(x_0 + 1, w - 1);
+		auto const y_1  = std::min(y_0 + 1, h - 1);
 
 		auto const z_00 = img(x_0, y_0);
 		auto const z_01 = img(x_0, y_1);
@@ -76,6 +82,11 @@ int main(int argc, char** argv) try
 	auto output =
 		get_or<cheapest_route::output_file>(get_if<std::filesystem::path>(cmdline, "output"),
 			cheapest_route::output_file{cheapest_route::std_output_stream{stdout}});
+
+	std::ranges::for_each(result, [](auto const& item){
+		printf("%.8g %.8g %.8g\n", item.loc[0], item.loc[1], item.total_cost);
+	});
+
 #if 0
 	int64_t const size = 1024;
 	auto const valid_range =
@@ -86,9 +97,6 @@ int main(int argc, char** argv) try
 	auto result = search(cheapest_route::from<int64_t>{size - 1, 2*size/3},
 		cheapest_route::to<int64_t>{0, size/3}, rect);
 
-	std::ranges::for_each(result, [](auto const& item){
-		printf("%.8g %.8g %.8g\n", item.loc[0], item.loc[1], item.total_cost);
-	});
 #endif
 }
 catch(std::exception const& err)
