@@ -52,16 +52,22 @@ namespace cheapest_route
 		vec<double, 2, quantity_type::vector>,
 		vec<double, 2, quantity_type::point>);
 
+	using search_domain = dimensions_2d<int64_t,
+		boundary_type::inclusive,
+		boundary_type::exclusive,
+		boundary_type::inclusive,
+		boundary_type::exclusive>;
+
 	path search_impl(from<int64_t> source,
 		to<int64_t> target,
-		dimensions_2d<int64_t, boundary_type::inclusive, boundary_type::exclusive, boundary_type::inclusive, boundary_type::exclusive> const& domain,
+		search_domain const& domain,
 		void const* callback_data,
 		cost_function_ptr cost_function);
 
 	template<class CostFunction = homogeous_cost, class Metric = flat_euclidian_norm>
 	auto search(from<int64_t> source,
 		to<int64_t> target,
-		dimensions_2d<int64_t, boundary_type::inclusive, boundary_type::exclusive, boundary_type::inclusive, boundary_type::exclusive>  const& domain,
+		search_domain const& domain,
 		CostFunction&& f = homogeous_cost{},
 		Metric&& ds = flat_euclidian_norm{})
 	{
