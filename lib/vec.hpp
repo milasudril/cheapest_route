@@ -1,10 +1,13 @@
 #ifndef CHEAPESTROUTE_VEC_HPP
 #define CHEAPESTROUTE_VEC_HPP
 
+#include "./value_array.hpp"
+
 #include <type_traits>
 #include <cstdint>
 #include <cstddef>
 #include <string>
+#include <stdexcept>
 
 namespace cheapest_route
 {
@@ -36,7 +39,12 @@ namespace cheapest_route
 		constexpr explicit vec(T first, Args ... args):m_value{first, args...}{}
 
 		explicit vec(std::string_view src):m_value{}
-		{}
+		{
+			static_value_array<T, N> values{src};
+
+			for(size_t k = 0; k != N; ++k)
+			{ m_value[k] = values[k]; }
+		}
 
 		constexpr auto value() const { return m_value; }
 
@@ -144,12 +152,13 @@ namespace cheapest_route
 	template<class T, size_t N, auto tag>
 	auto to_string(vec<T, N, tag> a)
 	{
-		std::string ret{"("};
+		static_value_array<T, N> values{};
 		for(size_t k = 0; k != N; ++k)
 		{
-			ret.append(std::to_string(a[k])).append(k != N - 1 ? ", " : ")");
+			values[k] = a[k];
 		}
-		return ret;
+
+		return to_string(values);
 	}
 }
 
