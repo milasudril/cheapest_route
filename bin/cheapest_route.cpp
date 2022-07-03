@@ -4,6 +4,8 @@
 #include "./io_utils.hpp"
 #include "./scaling_factors.hpp"
 #include "./image_loader.hpp"
+#include "./path_encoder.hpp"
+#include "./length_unit.hpp"
 
 #include "lib/search.hpp"
 #include "pixel_store/image.hpp"
@@ -82,10 +84,10 @@ int main(int argc, char** argv) try
 	auto output_file =
 		get_or<cheapest_route::output_file>(get_if<std::filesystem::path>(cmdline, "output.file"),
 			cheapest_route::output_file{cheapest_route::std_output_stream{stdout}});
-	cheapest_route::path_file_encoder const path_encoder{cmdline["output.format"]};
+	cheapest_route::path_encoder const encode{cmdline["output.format"]};
 	cheapest_route::length_unit const output_lu{cmdline["output.length_unit"]};
 
-	path_encoder(output_file.get(), result, length_unit, scale);
+	encode(output_file.get(), result, output_lu, scale);
 }
 catch(std::exception const& err)
 {
