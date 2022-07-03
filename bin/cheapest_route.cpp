@@ -3,8 +3,10 @@
 #include "./cmdline.hpp"
 #include "./io_utils.hpp"
 #include "./scaling_factors.hpp"
+#include "./image_loader.hpp"
 
 #include "lib/search.hpp"
+#include "pixel_store/image.hpp"
 
 int main(int argc, char** argv) try
 {
