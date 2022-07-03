@@ -10,13 +10,40 @@
 
 namespace cheapest_route
 {
+	float interp(pixel_store::image_span<float const> img, vec2f_t loc)
+	{
+		auto const x_0  = static_cast<int64_t>(loc[0]);
+		auto const y_0  = static_cast<int64_t>(loc[1]);
+		auto const x_1  = x_0 + 1;
+		auto const y_1  = y_0 + 1;
+
+		auto const z_00 = img(x_0, y_0);
+		auto const z_01 = img(x_0, y_1);
+		auto const z_10 = img(x_1, y_0);
+		auto const z_11 = img(x_1, y_1);
+
+		auto const xi = loc - vec2f_t{static_cast<double>(x_0), static_cast<double>(y_0)};
+
+		auto const z_x0 = (1.0f - static_cast<float>(xi[0])) * z_00 + static_cast<float>(xi[0]) * z_10;
+		auto const z_x1 = (1.0f - static_cast<float>(xi[0])) * z_01 + static_cast<float>(xi[0]) * z_11;
+		return (1.0f - static_cast<float>(xi[1])) * z_x0 + static_cast<float>(xi[1]) * z_x1;
+	}
+
+
 	struct flat_earth_distance_with_terrain
 	{
 		pixel_store::image_span<float const> image;
 		scaling_factors scale;
 
-		auto operator()(from<double>, to<double>) const {
-			return 0.0;
+		auto operator()(from<double> x1, to<double> x2) const
+		{
+			auto const dx = x2 - x1;
+			auto const z1 = interp(image, x1.value());
+			auto const z2 = interp(image, x2.value());
+
+			auto const dr = scale*vec<float, 4>{static_cast<float>(dx[0]), static_cast<float>(dx[1]), z2 - z1, 0.0f};
+
+			return std::sqrt(dot(dr, dr));
 		}
 	};
 }

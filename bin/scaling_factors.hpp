@@ -29,6 +29,12 @@ namespace cheapest_route
 	private:
 		vec4f_t m_values;
 	};
+
+	template<auto tag>
+	inline auto operator*(scaling_factors s, vec<float, 4, tag> v)
+	{
+		return vec<float, 4, tag>{s.values()*v.value()};
+	}
 }
 
 #endif

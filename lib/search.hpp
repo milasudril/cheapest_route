@@ -63,7 +63,7 @@ namespace cheapest_route
 			from<double> x0,
 			to<double> x1){
 			auto const& data = *static_cast<CostFunction const*>(func_pair);
-			return data(x0, x1);
+			return static_cast<double>(data(x0, x1));
 		});
 	}
 }
