@@ -9,6 +9,12 @@ namespace cheapest_route
 	template<class T, boundary_type left, boundary_type right, boundary_type top, boundary_type bottom>
 	struct dimensions_2d
 	{
+		constexpr dimensions_2d(vec<T, 2> dim):m_dim{dim}{}
+
+		constexpr dimensions_2d() = default;
+
+		constexpr dimensions_2d(T width, T height):m_dim{width, height}{}
+
 		constexpr auto width() const
 		{ return m_dim[0];}
 

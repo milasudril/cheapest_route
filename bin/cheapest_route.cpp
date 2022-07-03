@@ -8,6 +8,20 @@
 #include "lib/search.hpp"
 #include "pixel_store/image.hpp"
 
+namespace cheapest_route
+{
+	struct flatearth_terrain_metric
+	{
+		pixel_store::image_span<float const> image;
+		scaling_factors scale;
+
+		auto operator()(cheapest_route::vec<double, 2, cheapest_route::quantity_type::vector>,
+			cheapest_route::vec<double, 2, cheapest_route::quantity_type::point>) const {
+			return 0.0;
+		}
+	};
+}
+
 int main(int argc, char** argv) try
 {
 	cheapest_route::command_line cmdline{argc, argv};
@@ -23,7 +37,16 @@ int main(int argc, char** argv) try
 		fprintf(stderr, "(!) No cost_function set, using homogenous cost of 1\n");
 	}
 
-	auto const heighmap = cheapest_route::load_image(heighmap_path);
+	auto const heightmap = cheapest_route::load_image(heighmap_path);
+	auto const domain = cheapest_route::search_domain{
+		static_cast<int64_t>(heightmap.width()), static_cast<int64_t>(heightmap.height())
+	};
+
+	auto const result = search(origin_loc,
+		dest_loc,
+		domain,
+		cheapest_route::homogenous_cost{},
+		cheapest_route::flatearth_terrain_metric{heightmap.pixels(), scale});
 
 	auto output =
 		get_or<cheapest_route::output_file>(get_if<std::filesystem::path>(cmdline, "output"),

@@ -32,7 +32,7 @@ namespace cheapest_route
 		{ return std::sqrt(length_squared(dx)); }
 	};
 
-	struct homogeous_cost
+	struct homogenous_cost
 	{
 		static constexpr auto cost = 1.0;
 
@@ -64,11 +64,11 @@ namespace cheapest_route
 		void const* callback_data,
 		cost_function_ptr cost_function);
 
-	template<class CostFunction = homogeous_cost, class Metric = flat_euclidian_norm>
+	template<class CostFunction = homogenous_cost, class Metric = flat_euclidian_norm>
 	auto search(from<int64_t> source,
 		to<int64_t> target,
 		search_domain const& domain,
-		CostFunction&& f = homogeous_cost{},
+		CostFunction&& f = homogenous_cost{},
 		Metric&& ds = flat_euclidian_norm{})
 	{
 		std::pair functions{std::forward<CostFunction>(f), std::forward<Metric>(ds)};
