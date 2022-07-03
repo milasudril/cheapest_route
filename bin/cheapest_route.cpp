@@ -79,25 +79,16 @@ int main(int argc, char** argv) try
 		domain,
 		cheapest_route::flat_earth_distance_with_terrain{heightmap.pixels(), scale});
 
-	auto output =
-		get_or<cheapest_route::output_file>(get_if<std::filesystem::path>(cmdline, "output"),
+	auto output_file =
+		get_or<cheapest_route::output_file>(get_if<std::filesystem::path>(cmdline, "output.file"),
 			cheapest_route::output_file{cheapest_route::std_output_stream{stdout}});
+
+	cheapest_route::path_file_format const output_format{cmdline["output.format"]};
+	cheapest_route::length_unit const output_lu{cmdline["output.length_unit"]};
 
 	std::ranges::for_each(result, [](auto const& item){
 		printf("%.8g %.8g %.8g\n", item.loc[0], item.loc[1], item.total_cost);
 	});
-
-#if 0
-	int64_t const size = 1024;
-	auto const valid_range =
-		cheapest_route::make_interval<cheapest_route::boundary_type::inclusive,
-			cheapest_route::boundary_type::exclusive>(0l, size);
-	auto const rect = cheapest_route::rectangle{valid_range, valid_range}.dimensions();
-
-	auto result = search(cheapest_route::from<int64_t>{size - 1, 2*size/3},
-		cheapest_route::to<int64_t>{0, size/3}, rect);
-
-#endif
 }
 catch(std::exception const& err)
 {
