@@ -76,6 +76,9 @@ int main(int argc, char** argv) try
 		static_cast<int64_t>(heightmap.width()), static_cast<int64_t>(heightmap.height())
 	};
 
+	cheapest_route::path_encoder const encode{cmdline["output.format"]};
+	cheapest_route::length_unit const output_lu{cmdline["output.length_unit"]};
+
 	auto const result = search(origin_loc,
 		dest_loc,
 		domain,
@@ -84,8 +87,6 @@ int main(int argc, char** argv) try
 	auto output_file =
 		get_or<cheapest_route::output_file>(get_if<std::filesystem::path>(cmdline, "output.file"),
 			cheapest_route::output_file{cheapest_route::std_output_stream{stdout}});
-	cheapest_route::path_encoder const encode{cmdline["output.format"]};
-	cheapest_route::length_unit const output_lu{cmdline["output.length_unit"]};
 
 	encode(output_file.get(), output_lu, scale, domain, result);
 }

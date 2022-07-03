@@ -21,10 +21,9 @@ namespace
 			* factors.values()*vec4f_t{static_cast<float>(domain.width()), static_cast<float>(domain.height()), 0.0f, 0.0f}
 			+ vec4f_t{0.5f, 0.5f, 0.0f, 0.0f};
 
-		fprintf(f,R"(<svg width="%d" height="%d" xmlns="http://www.w3.org/2000/svg">
-<g transform="scale(%.8e %.0e)>"
-<polyline points="
-)",
+		fprintf(f,R"xml(<svg width="%d" height="%d" xmlns="http://www.w3.org/2000/svg">
+<g transform="scale(%.8e %.0e)">
+<polyline stroke="blue" points=")xml",
 			static_cast<int>(dom_scaled[0]), static_cast<int>(dom_scaled[1]),
 			factors.x(), factors.y()
 		);
@@ -32,10 +31,9 @@ namespace
 			auto const val = unit_factor*cheapest_route::vec<double, 2>{item.loc};
 			fprintf(f, "%.8e,%.8e ", val[0], val[1]);
 		});
-		fputs(R"( fill="none"/>
+		fputs(R"(" fill="none"/>
 </g>
-</svg>
-)", f);
+</svg>)", f);
 	}
 }
 
