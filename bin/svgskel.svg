@@ -1,0 +1,7 @@
+<svg width="10000" height="10000" xmlns="http://www.w3.org/2000/svg">
+  <!--polyline points="100,100 150,25 150,75 200,0" stroke="black" fill="none"/-->
+<g transform="scale(0.5 0.5)">
+	<!--coordinates should be multiplied by 90/0.0254 for meters -->
+<polyline points="3543.30709,3543.30709   5314.96063,885.82677 5314.96063,2657.48031 7086.61417,0.00000" fill="none"/>
+</g>
+</svg>
