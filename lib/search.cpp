@@ -116,12 +116,7 @@ namespace
 				{ continue; }
 
 				auto const next_scaled = scale_to_float(scale, next_loc);
-				auto const dx = next_scaled - from_loc_scaled;
-				cheapest_route::vec<double, 2, cheapest_route::quantity_type::point> const x{0.5*(
-					cheapest_route::vec<double, 2>{next_scaled}
-					+ cheapest_route::vec<double, 2>{from_loc_scaled}
-				)};
-				auto const cost_increment = cost_function(callback_data, dx, x);
+				auto const cost_increment = cost_function(callback_data, from_loc_scaled, next_scaled);
 
 				if(cost_increment < 0.0)
 				{ throw std::runtime_error{"Cost function must be positive"}; }

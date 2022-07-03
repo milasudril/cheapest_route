@@ -27,17 +27,8 @@ namespace cheapest_route
 
 	struct flat_euclidian_norm
 	{
-		constexpr auto operator()(vec<double, 2, quantity_type::vector> dx,
-			vec<double, 2, quantity_type::point>) const
-		{ return std::sqrt(length_squared(dx)); }
-	};
-
-	struct homogenous_cost
-	{
-		static constexpr auto cost = 1.0;
-
-		constexpr auto operator()(vec<double, 2, quantity_type::point>) const
-		{ return cost; }
+		constexpr auto operator()(from<double> x0, to<double> x1) const
+		{ return std::sqrt(length_squared(x1 - x0)); }
 	};
 
 	struct visited_node
@@ -48,9 +39,7 @@ namespace cheapest_route
 
 	using path = std::vector<visited_node>;
 
-	using cost_function_ptr = double (*)(void const* callback_data,
-		vec<double, 2, quantity_type::vector>,
-		vec<double, 2, quantity_type::point>);
+	using cost_function_ptr = double (*)(void const* callback_data, from<double>, to<double>);
 
 	using search_domain = dimensions_2d<int64_t,
 		boundary_type::inclusive,
@@ -64,19 +53,17 @@ namespace cheapest_route
 		void const* callback_data,
 		cost_function_ptr cost_function);
 
-	template<class CostFunction = homogenous_cost, class Metric = flat_euclidian_norm>
+	template<class CostFunction = flat_euclidian_norm>
 	auto search(from<int64_t> source,
 		to<int64_t> target,
 		search_domain const& domain,
-		CostFunction&& f = homogenous_cost{},
-		Metric&& ds = flat_euclidian_norm{})
+		CostFunction&& f = flat_euclidian_norm{})
 	{
-		std::pair functions{std::forward<CostFunction>(f), std::forward<Metric>(ds)};
-		return search_impl(source, target, domain, &functions, [](void const* func_pair,
-			vec<double, 2, quantity_type::vector> dx,
-			vec<double, 2, quantity_type::point> x){
-			auto const& data = *static_cast<decltype(functions) const*>(func_pair);
-			return data.first(x)*data.second(dx, x);
+		return search_impl(source, target, domain, &f, [](void const* func_pair,
+			from<double> x0,
+			to<double> x1){
+			auto const& data = *static_cast<CostFunction const*>(func_pair);
+			return data(x0, x1);
 		});
 	}
 }

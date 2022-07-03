@@ -10,13 +10,12 @@
 
 namespace cheapest_route
 {
-	struct flatearth_terrain_metric
+	struct distance_only_cost
 	{
 		pixel_store::image_span<float const> image;
 		scaling_factors scale;
 
-		auto operator()(cheapest_route::vec<double, 2, cheapest_route::quantity_type::vector>,
-			cheapest_route::vec<double, 2, cheapest_route::quantity_type::point>) const {
+		auto operator()(from<double>, to<double>) const {
 			return 0.0;
 		}
 	};
@@ -45,8 +44,7 @@ int main(int argc, char** argv) try
 	auto const result = search(origin_loc,
 		dest_loc,
 		domain,
-		cheapest_route::homogenous_cost{},
-		cheapest_route::flatearth_terrain_metric{heightmap.pixels(), scale});
+		cheapest_route::distance_only_cost{heightmap.pixels(), scale});
 
 	auto output =
 		get_or<cheapest_route::output_file>(get_if<std::filesystem::path>(cmdline, "output"),
