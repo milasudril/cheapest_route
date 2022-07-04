@@ -22,7 +22,7 @@ namespace
 			+ vec4f_t{0.5f, 0.5f, 0.0f, 0.0f};
 
 		fprintf(f,R"xml(<svg width="%d" height="%d" xmlns="http://www.w3.org/2000/svg">
-<g transform="scale(%.8e %.0e)">
+<g transform="scale(%.8e %.8e)">
 <polyline stroke="blue" points=")xml",
 			static_cast<int>(dom_scaled[0]), static_cast<int>(dom_scaled[1]),
 			factors.x(), factors.y()
