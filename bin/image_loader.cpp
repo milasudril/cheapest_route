@@ -19,7 +19,7 @@ cheapest_route::image_type cheapest_route::load_image(std::filesystem::path cons
 	auto w = box.max.x - box.min.x + 1;
 	auto h = box.max.y - box.min.y + 1;
 
-	constexpr auto elem_size = sizeof(float);
+	constexpr auto elem_size = sizeof(cost_values);
 
 	auto const& channels = src.header().channels();
 
@@ -40,6 +40,7 @@ cheapest_route::image_type cheapest_route::load_image(std::filesystem::path cons
 	if(!has_rgba && has_luminance)
 	{
 		image_type ret{static_cast<uint32_t>(w), static_cast<uint32_t>(h)};
+
 		Imf::FrameBuffer fb;
 		fb.insert("Y",
 				Imf::Slice{Imf::FLOAT,

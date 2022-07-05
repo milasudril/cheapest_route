@@ -14,7 +14,7 @@
 
 namespace cheapest_route
 {
-	float interp(pixel_store::image_span<float const> img, vec2f_t loc)
+	cost_values interp(pixel_store::image_span<cost_values const> img, vec2f_t loc)
 	{
 		auto const x_0  = static_cast<int64_t>(loc[0]);
 		auto const y_0  = static_cast<int64_t>(loc[1]);
@@ -37,21 +37,24 @@ namespace cheapest_route
 		return (1.0f - static_cast<float>(xi[1])) * z_x0 + static_cast<float>(xi[1]) * z_x1;
 	}
 
-
-	struct flat_earth_distance_with_terrain
+	struct cost_function
 	{
-		pixel_store::image_span<float const> image;
+		pixel_store::image_span<cost_values const> image;
 		scaling_factors scale;
 
 		auto operator()(from<double> x1, to<double> x2) const
 		{
 			auto const dx = x2 - x1;
-			auto const z1 = interp(image, x1.value());
-			auto const z2 = interp(image, x2.value());
+			auto const c1 = interp(image, x1.value());
+			auto const c2 = interp(image, x2.value());
 
-			auto const dr = scale*vec<float, 4>{static_cast<float>(dx[0]), static_cast<float>(dx[1]), z2 - z1, 0.0f};
+			auto const dr = scale*vec<float, 4>{static_cast<float>(dx[0]),
+				static_cast<float>(dx[1]),
+				c2.elevation() - c1.elevation(),
+				0.0f};
 
-			return std::sqrt(dot(dr, dr));
+			auto const c = interp(image, midpoint(x2, x1).value());
+			return c.friction()*std::sqrt(dot(dr, dr)) + std::abs(dot(c.wind(), dx));
 		}
 	};
 }
@@ -82,7 +85,7 @@ int main(int argc, char** argv) try
 	auto const result = search(origin_loc,
 		dest_loc,
 		domain,
-		cheapest_route::flat_earth_distance_with_terrain{heightmap.pixels(), scale});
+		cheapest_route::cost_function{heightmap.pixels(), scale});
 
 	auto output_file =
 		get_or<cheapest_route::output_file>(get_if<std::filesystem::path>(cmdline, "output.file"),

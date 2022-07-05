@@ -19,8 +19,6 @@ namespace cheapest_route
 	template<class T>
 	using to = vec<T, 2, node_type::target>;
 
-	enum class quantity_type:int{vector, point};
-
 	template<class T>
 	constexpr auto operator-(to<T> a, from<T> b)
 	{ return vec<double, 2, quantity_type::vector>{a} - vec<double, 2, quantity_type::vector>{b}; }

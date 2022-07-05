@@ -162,6 +162,8 @@ namespace cheapest_route
 
 		return to_string(values);
 	}
+
+	enum class quantity_type:int{vector, point};
 }
 
 #endif
