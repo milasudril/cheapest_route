@@ -53,9 +53,35 @@ cheapest_route::image_type cheapest_route::load_image(std::filesystem::path cons
 		return ret;
 	}
 
-	if(has_luminance && !has_rgba)
+	if(has_rgba && !has_luminance)
 	{
-		throw std::runtime_error{"Unimplemented channel set."};
+		image_type ret{static_cast<uint32_t>(w), static_cast<uint32_t>(h)};
+
+		Imf::FrameBuffer fb;
+		fb.insert("R",
+				Imf::Slice{Imf::FLOAT,
+							(char*)(ret.pixels().data()) + 0 * sizeof(float),
+							elem_size,
+							elem_size * w});
+		fb.insert("G",
+			Imf::Slice{Imf::FLOAT,
+						(char*)(ret.pixels().data()) + 1 * sizeof(float),
+						elem_size,
+						elem_size * w});
+		fb.insert("B",
+			Imf::Slice{Imf::FLOAT,
+						(char*)(ret.pixels().data()) + 2 * sizeof(float),
+						elem_size,
+						elem_size * w});
+		fb.insert("A",
+			Imf::Slice{Imf::FLOAT,
+						(char*)(ret.pixels().data()) + 3 * sizeof(float),
+						elem_size,
+						elem_size * w});
+
+		src.setFrameBuffer(fb);
+		src.readPixels(box.min.y, box.max.y);
+		return ret;
 	}
 
 	throw std::runtime_error{"Unsupported channel set. Input image should use either RGBA or Y."};
