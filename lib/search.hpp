@@ -25,6 +25,10 @@ namespace cheapest_route
 	constexpr auto operator-(to<T> a, from<T> b)
 	{ return vec<double, 2, quantity_type::vector>{a} - vec<double, 2, quantity_type::vector>{b}; }
 
+	template<class T>
+	constexpr auto midpoint(to<T> a, from<T> b)
+	{ return vec<double, 2, quantity_type::point>{0.5*(vec<double, 2>{a} + vec<double, 2>{b})}; }
+
 	struct flat_euclidian_norm
 	{
 		constexpr auto operator()(from<double> x0, to<double> x1) const
