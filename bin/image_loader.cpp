@@ -21,16 +21,41 @@ cheapest_route::image_type cheapest_route::load_image(std::filesystem::path cons
 
 	constexpr auto elem_size = sizeof(float);
 
-	image_type ret{static_cast<uint32_t>(w), static_cast<uint32_t>(h)};
-	Imf::FrameBuffer fb;
-	fb.insert("Y",
-			Imf::Slice{Imf::FLOAT,
-						(char*)(ret.pixels().data()) + 0 * sizeof(float),
-						elem_size,
-						elem_size * w});
+	auto const& channels = src.header().channels();
 
-	src.setFrameBuffer(fb);
-	src.readPixels(box.min.y, box.max.y);
+	auto const red = channels.findChannel("R");
+	auto const green = channels.findChannel("G");
+	auto const blue = channels.findChannel("B");
+	auto const alpha = channels.findChannel("A");
+	auto const luminance = channels.findChannel("Y");
 
-	return ret;
+	auto const has_rgba = red != nullptr && green != nullptr && blue != nullptr && alpha != nullptr;
+	auto const has_luminance = luminance != nullptr;
+
+	if(has_rgba && has_luminance)
+	{
+		throw std::runtime_error{"Ambigous channel set. Input image should use either RGBA or Y."};
+	}
+
+	if(!has_rgba && has_luminance)
+	{
+		image_type ret{static_cast<uint32_t>(w), static_cast<uint32_t>(h)};
+		Imf::FrameBuffer fb;
+		fb.insert("Y",
+				Imf::Slice{Imf::FLOAT,
+							(char*)(ret.pixels().data()) + 0 * sizeof(float),
+							elem_size,
+							elem_size * w});
+
+		src.setFrameBuffer(fb);
+		src.readPixels(box.min.y, box.max.y);
+		return ret;
+	}
+
+	if(has_luminance && !has_rgba)
+	{
+		throw std::runtime_error{"Unimplemented channel set."};
+	}
+
+	throw std::runtime_error{"Unsupported channel set. Input image should use either RGBA or Y."};
 }
