@@ -67,16 +67,10 @@ int main(int argc, char** argv) try
 	cheapest_route::to<int64_t> dest_loc{cmdline["destination"]};
 	auto const scale = get_or(cmdline, "scaling_factors", cheapest_route::scaling_factors{1.0f, 1.0f, 1.0f});
 
-	std::filesystem::path heighmap_path{cmdline["heightmap"]};
-	auto const cost_function_path = get_if<std::filesystem::path>(cmdline, "cost_function");
-	if(!cost_function_path.has_value())
-	{
-		fprintf(stderr, "(!) No cost_function set, using homogenous cost of 1\n");
-	}
-
-	auto const heightmap = cheapest_route::load_image(heighmap_path);
+	std::filesystem::path cost_map_path{cmdline["cost_map"]};
+	auto const cost_map = cheapest_route::load_image(cost_map_path);
 	auto const domain = cheapest_route::search_domain{
-		static_cast<int64_t>(heightmap.width()), static_cast<int64_t>(heightmap.height())
+		static_cast<int64_t>(cost_map.width()), static_cast<int64_t>(cost_map.height())
 	};
 
 	cheapest_route::path_encoder const encode{cmdline["output.format"]};
@@ -85,7 +79,7 @@ int main(int argc, char** argv) try
 	auto const result = search(origin_loc,
 		dest_loc,
 		domain,
-		cheapest_route::cost_function{heightmap.pixels(), scale});
+		cheapest_route::cost_function{cost_map.pixels(), scale});
 
 	auto output_file =
 		get_or<cheapest_route::output_file>(get_if<std::filesystem::path>(cmdline, "output.file"),
