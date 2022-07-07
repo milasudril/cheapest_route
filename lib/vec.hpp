@@ -97,6 +97,12 @@ namespace cheapest_route
 	}
 
 	template<class T, size_t N, auto tag>
+	constexpr auto scale(vec<T, N, tag> a, vec<T, N, tag> b)
+	{
+		return vec<T, N, tag>{a.value()*b.value()};
+	}
+
+	template<class T, size_t N, auto tag>
 	constexpr auto operator*(vec<T, N, tag> val, T scalar)
 	{
 		val*=scalar;

@@ -50,7 +50,6 @@ namespace cheapest_route
 		return T{val};
 	}
 
-
 	template<>
 	inline long from_string<long>(std::string const& val)
 	{
@@ -61,6 +60,12 @@ namespace cheapest_route
 	inline float from_string<float>(std::string const& val)
 	{
 		return std::stof(val);
+	}
+
+	template<>
+	inline double from_string<double>(std::string const& val)
+	{
+		return std::stod(val);
 	}
 
 	template<class T, size_t N>

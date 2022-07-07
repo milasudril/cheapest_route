@@ -63,6 +63,16 @@ namespace cheapest_route
 		return T{i->second, std::forward<Args>(args)...};
 	}
 
+	float get_or(command_line const& cmdline, char const* key, float default_val)
+	{
+		auto i = cmdline.find(key);
+		if(i == std::end(cmdline))
+		{
+			return default_val;
+		}
+		return std::stof(i->second);
+	}
+
 	template<class T, class ... Args>
 	T get_or(command_line const& cmdline, char const* key, T default_val, Args&& ... args)
 	{
