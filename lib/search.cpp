@@ -17,20 +17,20 @@ namespace
 	struct pending_route_node
 	{
 		cheapest_route::to<int64_t> loc;
-		double total_cost;
+		double integrated_cost;
 	};
 
 	bool is_cheaper(pending_route_node const& a, pending_route_node const& b)
 	{
-		return a.total_cost < b.total_cost;
+		return a.integrated_cost < b.integrated_cost;
 	}
 
 	struct route_node
 	{
 		cheapest_route::from<int64_t> loc;
-		double total_cost;
+		double integrated_cost;
 
-		route_node():loc{}, total_cost{std::numeric_limits<double>::infinity()}{}
+		route_node():loc{}, integrated_cost{std::numeric_limits<double>::infinity()}{}
 	};
 
 	constexpr auto gen_neigbour_offset_table()
@@ -130,10 +130,10 @@ namespace
 				if(new_cost_item.visited)
 				{ continue; }
 
-				auto const new_cost = current.total_cost + cost_increment;
-				if(new_cost < new_cost_item.total_cost)
+				auto const new_cost = current.integrated_cost + cost_increment;
+				if(new_cost < new_cost_item.integrated_cost)
 				{
-					new_cost_item.total_cost = new_cost;
+					new_cost_item.integrated_cost = new_cost;
 					new_cost_item.loc = cheapest_route::from<int64_t>{current.loc.value()};
 					nodes_to_visit.push(pending_route_node{next_loc, new_cost});
 				}
@@ -156,12 +156,12 @@ namespace
 			auto const& item = get_item(res.cost_table.get(), loc_search, res.dom_scaled.width());
 
 			ret.push_back(cheapest_route::path::value_type{
-				cheapest_route::vec<double, 2, cheapest_route::quantity_type::point>{loc}, item.total_cost
+				cheapest_route::vec<double, 2, cheapest_route::quantity_type::point>{loc}, item.integrated_cost
 			});
 
-			if(item.total_cost == std::numeric_limits<double>::infinity())
+			if(item.integrated_cost == std::numeric_limits<double>::infinity())
 			{
-				ret.back().total_cost = 0.0;
+				ret.back().integrated_cost = 0.0;
 				std::reverse(std::begin(ret), std::end(ret));
 				return ret;
 			}

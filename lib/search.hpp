@@ -36,7 +36,7 @@ namespace cheapest_route
 	struct visited_node
 	{
 		vec<double, 2, quantity_type::point> loc;
-		double total_cost;
+		double integrated_cost;
 	};
 
 	using path = std::vector<visited_node>;

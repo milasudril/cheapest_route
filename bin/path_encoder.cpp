@@ -44,7 +44,7 @@ namespace
 	{
 		// TODO: Apply scaling
 		std::ranges::for_each(nodes, [f](auto const& item){
-			fprintf(f, "%.8e %.8e %.8e\n", item.loc[0], item.loc[1], item.total_cost);
+			fprintf(f, "%.8e %.8e %.8e\n", item.loc[0], item.loc[1], item.integrated_cost);
 		});
 	}
 }
