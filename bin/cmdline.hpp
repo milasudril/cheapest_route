@@ -47,6 +47,9 @@ namespace cheapest_route
 			return m_storage.find(key);
 		}
 
+		auto contains(std::string_view key) const
+		{ return m_storage.contains(key); }
+
 	private:
 		storage_type m_storage;
 	};

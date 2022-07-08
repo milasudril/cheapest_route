@@ -60,11 +60,92 @@ namespace cheapest_route
 				+ std::abs(dot(scale(c.wind(), wind_strength), dx));
 		}
 	};
+
+	void print_help()
+	{
+		printf(R"text(Usage: cheapest_route [options]
+
+`cheapest_route` finds the cheapest route between two points, given a cost map stored
+in an image.
+
+Options are key-value pairs written on the form key=value. Depending on your shell, you
+may need to escape `(`  and `)` with `\(` and `\)`.
+
+Example command:
+
+```bash
+cheapest_route cost_map=test.exr \
+	origin=\(0,1103\) \
+	destination=\(1626,303\) \
+	world_scale=\(25.41351674641148,31.31489234449761,10000\) \
+	output_format=svg length_unit=m output_file=/dev/shm/test.svg \
+	friction_strength=0.01 wind_strength=\(393.4913888457429,319.3368793987605\)
+```
+
+Supported options are
+
++----------------------+---------------+----------------------------------------------------+
+| Option               | Default value | Description                                        |
++======================+===============+====================================================+
+| origin=(x,y)         | *mandatory*   | Sets the starting point of the path                |
+| destination=(x,y)    | *mandatory*   | Sets the final point of the path                   |
++----------------------+---------------+----------------------------------------------------+
+| world_scale=(x,y,z)  | (1,1,1)       | Sets scaling factors for x, y, and z values.       |
+|                      |               | x and y affects the size of the domain, while z    |
+|                      |               | scales the intensity of each pixel.                |
++----------------------+---------------+----------------------------------------------------+
+| friction_strength=µ  | 1             | The "friction" strength. Friction determines the   |
+|                      |               | cost of passing an individual pixel.               |
++----------------------+---------------+----------------------------------------------------+
+| wind_strength=(x,y)  | (1,1)         | The "wind" strength. Wind deterines how easy/hard  |
+|                      |               | it is to travel in a particular direction.         |
++----------------------+---------------+----------------------------------------------------+
+| cost_map=file.exr    | *mandatory*   | The image file that contains the cost map. A       |
+|                      |               | grayscale image is used as a pure heighmap. In     |
+|                      |               | this case the "friction" will be constant, and     |
+|                      |               | there will be no "wind". It is also possible to    |
+|                      |               | use a RGBA image. In this case                     |
+|                      |               | - red is mapped to the local elevation             |
+|                      |               | - green is mapped to the local friction            |
+|                      |               | - blue is the x component of the wind              |
+|                      |               | - alpha is the y component of the wind             |
++----------------------+---------------+----------------------------------------------------+
+| output_format=fmt    | *mandatory*   | Selects how to export serialize the resulting      |
+|                      |               | path. Supported formats are                        |
+|                      |               | - json - a lossless export of the result           |
+|                      |               | - txt - saves the path as columns with x, y z and  |
+|                      |               |          integrated cost                           |
+|                      |               | - svg - saves the path as an svg file. This is     |
+|                      |               |          only saves the path, not any information  |
+|                      |               |          about the cost                            |
++----------------------+---------------+----------------------------------------------------+
+| length_unit=unit     | *mandatory*   | Sets the unit of length for world_scale. Valid     |
+|                      |               | units are                                          |
+|                      |               | - m                                                |
+|                      |               | - dm                                               |
+|                      |               | - cm                                               |
+|                      |               | - mm                                               |
+|                      |               | - in                                               |
+|                      |               | - svg                                              |
+
+)text");
+	}
 }
 
 int main(int argc, char** argv) try
 {
 	cheapest_route::command_line cmdline{argc, argv};
+	if(std::size(cmdline) == 0)
+	{ throw std::runtime_error{"Try cheapest_route help="}; }
+
+	if(cmdline.contains("help"))
+	{
+		if(std::size(cmdline) != 1)
+		{ throw std::runtime_error{"Try cheapest_route help="}; }
+
+		cheapest_route::print_help();
+		return 0;
+	}
 
 	cheapest_route::from<int64_t> origin_loc{cmdline["origin"]};
 	cheapest_route::to<int64_t> dest_loc{cmdline["destination"]};
