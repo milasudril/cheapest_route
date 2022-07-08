@@ -38,13 +38,13 @@ namespace
 
 	void encode_txt(FILE* f,
 		cheapest_route::length_unit,
-		cheapest_route::scaling_factors,
+		cheapest_route::scaling_factors world_scale,
 		cheapest_route::search_domain,
 		cheapest_route::path const& nodes)
 	{
-		// TODO: Apply scaling
-		std::ranges::for_each(nodes, [f](auto const& item){
-			fprintf(f, "%.8e %.8e %.8e\n", item.loc[0], item.loc[1], item.integrated_cost);
+		std::ranges::for_each(nodes, [f, world_scale](auto const& item){
+			auto const loc_scaled = cheapest_route::vec2f_t{world_scale.x(), world_scale.y()}*item.loc.value();
+			fprintf(f, "%.8e %.8e %.8e\n", loc_scaled[0], loc_scaled[1], item.integrated_cost);
 		});
 	}
 }
