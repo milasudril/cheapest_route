@@ -47,6 +47,47 @@ namespace
 			fprintf(f, "%.8e %.8e %.8e\n", loc_scaled[0], loc_scaled[1], item.integrated_cost);
 		});
 	}
+
+	void encode_json(FILE* f,
+		cheapest_route::length_unit lu,
+		cheapest_route::scaling_factors world_scale,
+		cheapest_route::search_domain,
+		cheapest_route::path const& nodes)
+	{
+		std::string x_vals;
+		std::string y_vals;
+		std::string integrated_cost;
+
+		auto gen_item = [](size_t k, double value) {
+			char buffer[20];
+			sprintf(buffer, "%.8e", value);
+			return std::string{k == 0 ? "" : ", "}.append(buffer);
+		};
+
+		for(size_t k = 0; k!= std::size(nodes); ++k)
+		{
+			x_vals += gen_item(k, nodes[k].loc[0]);
+			y_vals += gen_item(k, nodes[k].loc[1]);
+			integrated_cost += gen_item(k, nodes[k].integrated_cost);
+		}
+
+		fprintf(f, R"json({
+	"length_unit": "%s",
+	"world_scale": "%.8e %.8e %.8e %.8e",
+	"path": {
+		"x": [%s],
+		"y": [%s],
+		"integrated_cost": [%s]
+	}
+"})json",
+			lu.name(),
+			world_scale.x(), world_scale.y(), world_scale.z(), 0.0,
+			x_vals.c_str(),
+			y_vals.c_str(),
+			integrated_cost.c_str()
+		);
+	}
+
 }
 
 cheapest_route::path_encoder::path_encoder(std::string_view str)
@@ -56,11 +97,9 @@ cheapest_route::path_encoder::path_encoder(std::string_view str)
 	else
 	if(str == "txt")
 	{ encode = encode_txt; }
-#if 0
 	else
 	if(str == "json")
 	{ encode = encode_json; }
-#endif
 	else
 	{
 		throw std::runtime_error{"Unsupported output format"};

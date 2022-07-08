@@ -4,7 +4,7 @@
 
 #include <stdexcept>
 
-cheapest_route::length_unit::length_unit(std::string_view str)
+cheapest_route::length_unit::length_unit(std::string_view str):m_name{str}
 {
 	if(str == "m")
 	{ m_factor = 1.0; }

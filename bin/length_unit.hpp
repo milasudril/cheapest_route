@@ -15,8 +15,11 @@ namespace cheapest_route
 		double factor() const
 		{ return m_factor; }
 
+		char const* name() const { return m_name.c_str(); }
+
 	private:
 		double m_factor;
+		std::string m_name;
 	};
 }
 
