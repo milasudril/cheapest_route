@@ -79,8 +79,8 @@ int main(int argc, char** argv) try
 		static_cast<int64_t>(cost_map.width()), static_cast<int64_t>(cost_map.height())
 	};
 
-	cheapest_route::path_encoder const encode{cmdline["output.format"]};
-	cheapest_route::length_unit const output_lu{cmdline["output.length_unit"]};
+	cheapest_route::path_encoder const encode{cmdline["output_format"]};
+	cheapest_route::length_unit const lu{cmdline["length_unit"]};
 
 	auto const result = search(origin_loc,
 		dest_loc,
@@ -88,10 +88,10 @@ int main(int argc, char** argv) try
 		cheapest_route::cost_function{cost_map.pixels(), world_scale, friction_strength, wind_strength});
 
 	auto output_file =
-		get_or<cheapest_route::output_file>(get_if<std::filesystem::path>(cmdline, "output.file"),
+		get_or<cheapest_route::output_file>(get_if<std::filesystem::path>(cmdline, "output_file"),
 			cheapest_route::output_file{cheapest_route::std_output_stream{stdout}});
 
-	encode(output_file.get(), output_lu, world_scale, domain, result);
+	encode(output_file.get(), lu, world_scale, domain, result);
 }
 catch(std::exception const& err)
 {
