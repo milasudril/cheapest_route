@@ -69,7 +69,11 @@ int main(int argc, char** argv) try
 	cheapest_route::from<int64_t> origin_loc{cmdline["origin"]};
 	cheapest_route::to<int64_t> dest_loc{cmdline["destination"]};
 	auto const world_scale = get_or(cmdline, "world_scale", cheapest_route::scaling_factors{1.0f, 1.0f, 1.0f});
+
 	auto const friction_strength = get_or(cmdline, "friction_strength", 1.0f);
+	if(friction_strength <= 0.0f)
+	{ throw std::runtime_error{"The friction strength must be strictly positive"}; }
+
 	auto const wind_strength = get_or(cmdline, "wind_strength",
 									  cheapest_route::vec<double, 2, cheapest_route::quantity_type::vector>{1.0, 1.0});
 

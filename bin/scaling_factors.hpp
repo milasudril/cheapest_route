@@ -3,6 +3,8 @@
 
 #include "lib/vec.hpp"
 
+#include <stdexcept>
+
 namespace cheapest_route
 {
 	class scaling_factors
@@ -15,7 +17,11 @@ namespace cheapest_route
 			static_value_array<float, 3> values{str};
 
 			for(size_t k = 0; k != 3; ++k)
-			{ m_values[k] = values[k]; }
+			{
+				if(values[k] <= 0.0f)
+				{ throw std::runtime_error{"All scaling factors must be strictly positive"}; }
+				m_values[k] = values[k];
+			}
 		}
 
 		constexpr auto values() const { return m_values; }
