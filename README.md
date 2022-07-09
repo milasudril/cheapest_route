@@ -12,7 +12,12 @@ false-color representation of the input data.
 The input is an image in EXR format, which may be a grayscale image, or an RGBA image. In the case
 of a grayscale image, the Y component is used as a height-map. In the RGBA case, it the additional
 channels gives control over pixel traversal cost, as well as the cost of traveling in a different
-direction.
+direction. In both cases, a regular euclidian norm is used to measure the distance between two
+points, that is
+
+$$
+\mathrm{d}s(\vec{r}(t)) = \sqrt{(\mathrm{d} x)^2 + (\mathrm{d}y)^2 + (\mathrm{d}z)^2}
+$$
 
 For a grayscale image, the Y component is mapped to $z$, the elevation at the current pixel. The
 program will minimize
@@ -20,7 +25,8 @@ program will minimize
 $$
 I = \int_{a}^{^b} \mathrm{d}s(\vec{r}(t))
 $$
-, with respect to $\vec{r}(t) = \vec{c}\odot(x(t), s_y y(t), z(x(t), y(t)))$. The components of
+
+with respect to $\vec{r}(t) = \vec{c}\odot(x(t), y(t), z(x(t), y(t)))$. The components of
 $\vec{c}$, can be controlled from the command line, and affects the scale in the different
 directions.
 
