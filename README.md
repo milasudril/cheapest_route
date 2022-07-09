@@ -39,5 +39,5 @@ thought a head-wind effect and is denoted $\vec{v}$. The effect of $\vec{v}$ is 
 constant $\vec{c_v}$. With this additional data, the program will minimize
 
 $$
-I = \int_{a}^{b}\left(\vec{c_s}\odot\mu(x(t), y(t))\\, \mathrm{d}s(x, y, z) + |\vec{c_v}\odot\vec{v}(\vec{r})\cdot\\, \mathrm{d}\vec{r}|\right)
+I = \int_{a}^{b}\left(\mu(x(t), y(t))\\, \mathrm{d}s(\vec{r}(t))+ |\vec{c_v}\odot\vec{v}(\vec{r}(t))\cdot\\, \mathrm{d}\vec{r}(t)|\right)
 $$
