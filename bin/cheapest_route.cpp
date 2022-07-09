@@ -88,6 +88,7 @@ Supported options are
 | Option               | Default value | Description                                        |
 +======================+===============+====================================================+
 | origin=(x,y)         | *mandatory*   | Sets the starting point of the path                |
++----------------------+---------------+----------------------------------------------------+
 | destination=(x,y)    | *mandatory*   | Sets the final point of the path                   |
 +----------------------+---------------+----------------------------------------------------+
 | world_scale=(x,y,z)  | (1,1,1)       | Sets scaling factors for x, y, and z values.       |
@@ -112,12 +113,19 @@ Supported options are
 +----------------------+---------------+----------------------------------------------------+
 | output_format=fmt    | *mandatory*   | Selects how to export serialize the resulting      |
 |                      |               | path. Supported formats are                        |
-|                      |               | - json - a lossless export of the result           |
-|                      |               | - txt - saves the path as columns with x, y z and  |
-|                      |               |          integrated cost                           |
+|                      |               | - json - exports the result as well as scaling     |
+|                      |               |         factors and field strengths                |
+|                      |               | - txt - saves the path as columns with x, y, z,    |
+|                      |               |         and the integrated cost. Use this format   |
+|                      |               |         if you which to import the results using   |
+|                      |               |         `load` in Octave.                          |
 |                      |               | - svg - saves the path as an svg file. This is     |
-|                      |               |          only saves the path, not any information  |
-|                      |               |          about the cost                            |
+|                      |               |         only saves the path projected onto the xy  |
+|                      |               |         plane, not any information about the       |
+|                      |               |         elevation or the cost. This is useful if   |
+|                      |               |         you want to import the path into some kind |
+|                      |               |         of graphics software such as Inkscape or   |
+|                      |               |         Blender.                                   |
 +----------------------+---------------+----------------------------------------------------+
 | length_unit=unit     | *mandatory*   | Sets the unit of length for world_scale. Valid     |
 |                      |               | units are                                          |
