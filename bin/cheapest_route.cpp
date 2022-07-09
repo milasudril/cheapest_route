@@ -99,7 +99,8 @@ Supported options are
 |                      |               | cost of passing an individual pixel.               |
 +----------------------+---------------+----------------------------------------------------+
 | wind_strength=(x,y)  | (1,1)         | The "wind" strength. Wind deterines how easy/hard  |
-|                      |               | it is to travel in a particular direction.         |
+|                      |               | it is to travel in a particular direction. This    |
+|                      |               | options only affects RGBA input data.              |
 +----------------------+---------------+----------------------------------------------------+
 | cost_map=file.exr    | *mandatory*   | The image file that contains the cost map. A       |
 |                      |               | grayscale image is used as a pure heighmap. In     |
@@ -135,6 +136,7 @@ Supported options are
 |                      |               | - mm                                               |
 |                      |               | - in                                               |
 |                      |               | - svg                                              |
++----------------------+---------------+----------------------------------------------------+
 
 )text");
 	}
