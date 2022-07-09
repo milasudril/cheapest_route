@@ -43,3 +43,16 @@ constant $\vec{c_v}$. With this additional data, the program will minimize
 $$
 I = \int_{a}^{b}\left(\mu(x(t), y(t))\\, \mathrm{d}s(\vec{r}(t)) + |\vec{c_v}\odot\vec{v}(\vec{r}(t))\cdot\mathrm{d}\vec{r}(t)|\right)
 $$
+
+Notice that the vector part of the integral is over the absolute value of the projection between
+$\mathrm{d}\vec{r}$ and
+$\vec{c_v}\odot\vec{v}(\vec{r}(t))$. This means that it is not possible to simulate tailwind.
+
+## Compiling and running
+
+Install `maike2`, as well as the `OpenEXR` dev libraries. After running maike2, you can launch the
+program by running
+
+```
+__targets/bin/cheapest_route help=
+```
