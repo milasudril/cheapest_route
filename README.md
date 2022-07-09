@@ -33,11 +33,13 @@ approximation of a straight line.
 
 For a RGBA image, the R component takes the role of describing the elevation at the current pixel.
 The G component is used for describing cost of traversing the current pixel. It can be thought of as
-a local friction coefficient $\mu(x, y)$, which acts as a factor in a similar way as $\vec{c}$. The
+a local friction coefficient $\mu(x, y)$, which acts as a factor in a similar way as
+$\vec{c}$. The
 components B and A are used to control the cost of traveling in different direction. It can be
-thought a head-wind effect and is denoted $\vec{v}$. The effect of $\vec{v}$ is controlled by a
+thought a head-wind effect and is denoted $\vec{v}$. The effect of
+$\vec{v}$ is controlled by a
 constant $\vec{c_v}$. With this additional data, the program will minimize
 
 $$
-I = \int_{a}^{b}\left(\mu(x(t), y(t))\, \mathrm{d}s(\vec{r}(t)) + |\vec{c_v}\odot\vec{v}(\vec{r}(t))\cdot\, \mathrm{d}\vec{r}(t)|\right)
+I = \int_{a}^{b}\left(\mu(x(t), y(t))\\, \mathrm{d}s(\vec{r}(t)) + |\vec{c_v}\odot\vec{v}(\vec{r}(t))\cdot\mathrm{d}\vec{r}(t)|\right)
 $$
