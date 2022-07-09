@@ -28,16 +28,16 @@ $$
 
 with respect to $\vec{r}(t) = \vec{c_s}\odot(x(t), y(t), z(x(t), y(t)))$. The components of
 $\vec{c_s}$, can be controlled from the command line, and affects the scale in the different
-directions. If the $z$ component of $c_s$ is set to zero, the resulting path will be an
+directions. If the $z$ component of $\vec{c_s}$ is set to zero, the resulting path will be an
 approximation of a straight line.
 
 For a RGBA image, the R component takes the role of describing the elevation at the current pixel.
 The G component is used for describing cost of traversing the current pixel. It can be thought of as
-a local friction coefficient $\mu(x, y)$, which acts as a factor in a similar way as $\vec{c}. The
+a local friction coefficient $\mu(x, y)$, which acts as a factor in a similar way as $\vec{c}$. The
 components B and A are used to control the cost of traveling in different direction. It can be
 thought a head-wind effect and is denoted $\vec{v}$. The effect of $\vec{v}$ is controlled by a
 constant $\vec{c_v}$. With this additional data, the program will minimize
 
 $$
-I = \int_{a}^{b}\left(\mu(x(t), y(t))\\, \mathrm{d}s(\vec{r}(t))+ |\vec{c_v}\odot\vec{v}(\vec{r}(t))\cdot\\, \mathrm{d}\vec{r}(t)|\right)
+I = \int_{a}^{b}\left(\mu(x(t), y(t))\, \mathrm{d}s(\vec{r}(t)) + |\vec{c_v}\odot\vec{v}(\vec{r}(t))\cdot\, \mathrm{d}\vec{r}(t)|\right)
 $$
