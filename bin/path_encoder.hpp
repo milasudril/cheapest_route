@@ -17,11 +17,21 @@ namespace cheapest_route
 	public:
 		explicit path_encoder(std::string_view str);
 
-		void operator()(FILE* f, length_unit lu, scaling_factors factors, search_domain domain, path const& nodes) const
-		{ encode(f, lu, factors, domain, nodes); }
+		void operator()(FILE* f,
+			length_unit lu,
+			scaling_factors factors,
+			search_domain domain,
+			path const& nodes,
+			float const* elevation_profile) const
+		{ encode(f, lu, factors, domain, nodes, elevation_profile); }
 
 	private:
-		using func = void (*)(FILE* f, length_unit lu, scaling_factors factors, search_domain domain, path const& nodes);
+		using func = void (*)(FILE* f,
+			length_unit lu,
+			scaling_factors factors,
+			search_domain domain,
+			path const& nodes,
+			float const* elevation_profile);
 		func encode;
 	};
 }

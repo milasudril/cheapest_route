@@ -184,7 +184,12 @@ int main(int argc, char** argv) try
 		get_or<cheapest_route::output_file>(get_if<std::filesystem::path>(cmdline, "output_file"),
 			cheapest_route::output_file{cheapest_route::std_output_stream{stdout}});
 
-	encode(output_file.get(), lu, world_scale, domain, result);
+	std::vector<float> elevation_profile;
+	std::ranges::transform(result, std::back_inserter(elevation_profile),[pixels = cost_map.pixels()](auto const& item) {
+		return interp(pixels, item.loc.value()).elevation();
+	});
+
+	encode(output_file.get(), lu, world_scale, domain, result, std::data(elevation_profile));
 }
 catch(std::exception const& err)
 {
