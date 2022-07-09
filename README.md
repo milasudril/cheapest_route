@@ -28,7 +28,8 @@ $$
 
 with respect to $\vec{r}(t) = \vec{c_s}\odot(x(t), y(t), z(x(t), y(t)))$. The components of
 $\vec{c_s}$, can be controlled from the command line, and affects the scale in the different
-directions. If the $z$ component of $\vec{c_s}$ is set to zero, the resulting path will be an
+directions. If the $z$ component of
+$\vec{c_s}$ is set to zero, the resulting path will be an
 approximation of a straight line.
 
 For a RGBA image, the R component takes the role of describing the elevation at the current pixel.
