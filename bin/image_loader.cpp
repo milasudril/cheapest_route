@@ -1,4 +1,7 @@
-//@	{"target":{"name":"image_loader.o", "pkgconfig_libs":["OpenEXR"]}}
+//@	{
+//@	 "target":{"name":"image_loader.o"},
+//@	 "dependencies":[{"ref":"OpenEXR", "origin":"pkg-config"}]
+//@	}
 
 #include "./image_loader.hpp"
 
