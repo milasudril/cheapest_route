@@ -91,7 +91,7 @@ namespace
 		"z": [%s],
 		"integrated_cost": [%s]
 	}
-"})json",
+})json",
 			lu.name(),
 			world_scale.x(), world_scale.y(), world_scale.z(), 0.0,
 			x_vals.c_str(),
