@@ -59,7 +59,7 @@ namespace
 	void encode_json(FILE* f,
 		cheapest_route::length_unit lu,
 		cheapest_route::scaling_factors world_scale,
-		cheapest_route::search_domain,
+		cheapest_route::search_domain domain,
 		cheapest_route::path const& nodes,
 		float const* elevation_profile)
 	{
@@ -83,15 +83,23 @@ namespace
 		}
 
 		fprintf(f, R"json({
-	"length_unit": "%s",
-	"world_scale": "%.8e %.8e %.8e %.8e",
-	"path": {
-		"x": [%s],
-		"y": [%s],
-		"z": [%s],
-		"integrated_cost": [%s]
+	"cheapest_route": {
+		"domain_size": {
+			"width": %ld,
+			"height": %ld
+		},
+		"length_unit": "%s",
+		"world_scale": "%.8e %.8e %.8e %.8e",
+		"path": {
+			"x": [%s],
+			"y": [%s],
+			"z": [%s],
+			"integrated_cost": [%s]
+		}
 	}
 })json",
+			domain.width(),
+			domain.height(),
 			lu.name(),
 			world_scale.x(), world_scale.y(), world_scale.z(), 0.0,
 			x_vals.c_str(),
